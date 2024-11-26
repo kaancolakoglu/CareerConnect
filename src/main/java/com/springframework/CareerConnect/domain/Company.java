@@ -1,5 +1,6 @@
 package com.springframework.CareerConnect.domain;
 
+import com.springframework.CareerConnect.domain.JobPosting;
 import jakarta.persistence.*;
 import lombok.*;
 

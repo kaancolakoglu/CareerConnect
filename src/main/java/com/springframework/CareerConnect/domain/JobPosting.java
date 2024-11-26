@@ -3,9 +3,7 @@ package com.springframework.CareerConnect.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
