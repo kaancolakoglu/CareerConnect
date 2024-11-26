@@ -5,7 +5,6 @@ import com.springframework.CareerConnect.services.JobPostingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,8 +37,4 @@ public class JobPostingController {
         JobPosting savedJobPosting = jobPostingService.createJobPosting(jobPosting);
         return new ResponseEntity<>(savedJobPosting, HttpStatus.CREATED);
     }
-
-
-
-
 }
