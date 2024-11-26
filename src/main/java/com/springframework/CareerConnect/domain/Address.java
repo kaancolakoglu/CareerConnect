@@ -1,17 +1,13 @@
 package com.springframework.CareerConnect.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -19,7 +15,7 @@ import java.util.UUID;
 public class Address {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long addressId;
 
     private String street;
@@ -28,12 +24,12 @@ public class Address {
     private String country;
     private String zipCode;
 
-    public Address(Long addressId, String street, String city, String state, String country, String zipCode) {
-        this.addressId = addressId;
-        this.street = street;
-        this.city = city;
-        this.state = state;
-        this.country = country;
-        this.zipCode = zipCode;
-    }
+    @ManyToOne
+    @JoinColumn(name = "school_id")
+    private School school;
+
+    @ManyToMany(mappedBy = "address")
+    private Set<Company> company;
+
+
 }

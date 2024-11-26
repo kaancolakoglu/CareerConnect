@@ -1,16 +1,14 @@
 package com.springframework.CareerConnect.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -23,23 +21,22 @@ public class JobPosting{
     private String jobTitle;
     private String jobDescription;
     private String jobLocation;
-    private String jobType;
-    private String jobCategory;
+
+    @ManyToMany
+    @JoinTable(name = "job_posting_tags",
+            joinColumns = @JoinColumn(name = "job_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tag;
 
 
     @ManyToMany
     @JoinTable(name = "job_applicants",
             joinColumns = @JoinColumn(name = "job_id"),
             inverseJoinColumns = @JoinColumn(name = "profile_id"))
-    private Set<User> applicants;
+    private Set<User> applicant;
 
-    public JobPosting(Long jobId, String jobTitle, String jobDescription, String jobLocation, String jobType, String jobCategory, Set<User> applicants) {
-        this.jobId = jobId;
-        this.jobTitle = jobTitle;
-        this.jobDescription = jobDescription;
-        this.jobLocation = jobLocation;
-        this.jobType = jobType;
-        this.jobCategory = jobCategory;
-        this.applicants = applicants != null ? applicants : new HashSet<>();
-    }
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
 }

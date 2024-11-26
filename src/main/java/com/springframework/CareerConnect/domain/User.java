@@ -11,6 +11,7 @@ import java.util.UUID;
 
 
 @Entity
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -46,19 +47,24 @@ public class User {
     private Set<JobPosting> savedJobPosting;
 
 
-     public User(Long profileId, String username, String name, String lastName, String email, String password, String role, String status, String phone, LocalDateTime createdDate,LocalDateTime updatedDate, Set<Address> address, Set<JobPosting> savedJobPosting) {
-        this.profileId = profileId;
-        this.username = username;
-        this.name = name;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.status = status;
-        this.phone = phone;
-        this.createdDate = createdDate;
-        this.updatedDate = updatedDate;
-        this.address = address = address != null ? address : new HashSet<>();
-        this.savedJobPosting = savedJobPosting != null ? savedJobPosting : new HashSet<>();
-    }
+    @ManyToMany
+    @JoinTable(name = "user_skills",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<Skill> skill;
+
+    @ManyToMany
+    @JoinTable(name = "user_schools",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "school_id")
+        )
+    private Set<School> school;
+
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
+
+
 }
