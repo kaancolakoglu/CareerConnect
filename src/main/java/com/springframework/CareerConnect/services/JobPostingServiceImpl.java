@@ -9,6 +9,8 @@ import com.springframework.CareerConnect.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 
 @Service
 @Slf4j
@@ -33,7 +35,7 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
     public JobPosting findJobPostingById(Long id) {
         return jobPostingRepository.findById(String.valueOf(id))
-                .orElseThrow(() -> new ResourceNotFoundException("JobPosting not found"));
+                .orElseThrow(() -> new NoSuchElementException("JobPosting not found"));
     }
 
     @Override
