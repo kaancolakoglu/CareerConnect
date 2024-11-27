@@ -1,6 +1,5 @@
 package com.springframework.CareerConnect.services;
 
-import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.springframework.CareerConnect.domain.JobPosting;
 import com.springframework.CareerConnect.repositories.CompanyRepository;
 import com.springframework.CareerConnect.repositories.JobPostingRepository;

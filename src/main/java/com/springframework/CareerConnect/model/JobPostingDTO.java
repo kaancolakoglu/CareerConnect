@@ -3,7 +3,6 @@ package com.springframework.CareerConnect.model;
 import lombok.*;
 
 import java.util.List;
-import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor

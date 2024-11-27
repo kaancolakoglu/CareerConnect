@@ -3,7 +3,7 @@ package com.springframework.CareerConnect.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 
