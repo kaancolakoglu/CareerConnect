@@ -1,6 +1,7 @@
 package com.springframework.CareerConnect.bootstrap;
 
 import com.springframework.CareerConnect.domain.*;
+import com.springframework.CareerConnect.enums.Status;
 import com.springframework.CareerConnect.repositories.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -43,74 +44,32 @@ public class DataBootstrap implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Create Skills
         Skill javaSkill = Skill.builder().name("Java").build();
         Skill pythonSkill = Skill.builder().name("Python").build();
-        skillRepository.saveAll(Set.of(javaSkill, pythonSkill));
+        Skill mlSkill = Skill.builder().name("Machine Learning").build();
+        Skill cloudSkill = Skill.builder().name("Cloud Computing").build();
+        skillRepository.saveAll(Set.of(javaSkill, pythonSkill, mlSkill, cloudSkill));
 
-        // Create Tags
         Tag remoteTag = Tag.builder().tagName("Remote").build();
         Tag urgentTag = Tag.builder().tagName("Urgent").build();
-        tagRepository.saveAll(Set.of(remoteTag, urgentTag));
+        Tag fullTimeTag = Tag.builder().tagName("Full-Time").build();
+        Tag backendTag = Tag.builder().tagName("Backend Development").build();
+        tagRepository.saveAll(Set.of(remoteTag, urgentTag, fullTimeTag, backendTag));
 
-        // Create Schools
-        School school1 = School.builder().schoolName("Springfield High School").build();
-        School school2 = School.builder().schoolName("Oakwood Elementary").build();
-        schoolRepository.saveAll(Set.of(school1, school2));
+        Company company = Company.builder().name("Tech Solutions Inc.").build();
 
-        // Create Addresses
-        Address address1 = Address.builder()
-                .street("123 Main St")
-                .city("Springfield")
-                .state("IL")
+        Address companyAddress = Address.builder()
+                .street("789 Corporate Blvd")
+                .city("San Francisco")
+                .state("CA")
                 .country("USA")
-                .zipCode("62704")
-                .school(school1)
+                .zipCode("94103")
                 .build();
 
-        Address address2 = Address.builder()
-                .street("456 Elm St")
-                .city("Springfield")
-                .state("IL")
-                .country("USA")
-                .zipCode("62705")
-                .school(school2)
-                .build();
+        company.setAddress(Set.of(companyAddress));
+        addressRepository.save(companyAddress);
+        companyRepository.save(company);
 
-        addressRepository.saveAll(Set.of(address1, address2));
-
-        // Create Companies
-        Company company1 = Company.builder().name("Tech Solutions").build();
-        Company company2 = Company.builder().name("EduCorp").build();
-        company1.setAddress(Set.of(address1));
-        company2.setAddress(Set.of(address2));
-        companyRepository.saveAll(Set.of(company1, company2));
-
-        // Create Educations
-        Education education1 = Education.builder()
-                .educationName("Bachelor of Science")
-                .degree("B.Sc.")
-                .major("Computer Science")
-                .startDate(LocalDateTime.of(2018, 9, 1, 0, 0))
-                .endDate(LocalDateTime.of(2022, 6, 1, 0, 0))
-                .build();
-
-        Education education2 = Education.builder()
-                .educationName("Master of Business Administration")
-                .degree("MBA")
-                .major("Marketing")
-                .startDate(LocalDateTime.of(2020, 1, 1, 0, 0))
-                .endDate(LocalDateTime.of(2022, 12, 1, 0, 0))
-                .build();
-
-        educationRepository.saveAll(Set.of(education1, education2));
-
-        // Assign Educations to Schools
-        school1.setEducation(Set.of(education1));
-        school2.setEducation(Set.of(education2));
-        schoolRepository.saveAll(Set.of(school1, school2));
-
-        // Create Users
         User user1 = User.builder()
                 .username("alice123")
                 .name("Alice")
@@ -118,14 +77,12 @@ public class DataBootstrap implements CommandLineRunner {
                 .email("alice@mail.com")
                 .password("hashedpassword1")
                 .role("USER")
-                .status("ACTIVE")
+                .status(String.valueOf(Status.ACTIVE))
                 .phone("123-456-789")
-                .createdDate(org.joda.time.LocalDateTime.now())
-                .updatedDate(org.joda.time.LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
+                .updatedDate(LocalDateTime.now())
                 .skill(Set.of(javaSkill))
-                .school(Set.of(school1))
-                .company(company1)
-                .address(Set.of(address1))
+                .skill(Set.of(pythonSkill))
                 .build();
 
         User user2 = User.builder()
@@ -135,37 +92,81 @@ public class DataBootstrap implements CommandLineRunner {
                 .email("bob@mail.com")
                 .password("hashedpassword2")
                 .role("USER")
-                .status("ACTIVE")
+                .status(String.valueOf(Status.ACTIVE))
                 .phone("987-654-321")
-                .createdDate(org.joda.time.LocalDateTime.now())
-                .updatedDate(org.joda.time.LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
+                .updatedDate(LocalDateTime.now())
                 .skill(Set.of(pythonSkill))
-                .school(Set.of(school2))
-                .company(company2)
-                .address(Set.of(address2))
                 .build();
 
         userRepository.saveAll(Set.of(user1, user2));
 
-        // Create Job Postings
-        JobPosting job1 = JobPosting.builder()
-                .jobTitle("Software Engineer")
-                .jobDescription("Develop and maintain software applications.")
-                .jobLocation("Remote")
-                .company(company1)
-                .tag(Set.of(remoteTag))
-                .applicant(Set.of(user1))
+        User user3 = User.builder()
+                .username("carol789")
+                .name("Carol")
+                .lastName("Williams")
+                .email("carol@mail.com")
+                .password("hashedpassword3")
+                .role("USER")
+                .status(String.valueOf(Status.ACTIVE))
+                .phone("456-789-123")
+                .createdDate(LocalDateTime.now())
+                .updatedDate(LocalDateTime.now())
+                .skill(Set.of(mlSkill, cloudSkill))
                 .build();
+
+        User user4 = User.builder()
+                .username("dave012")
+                .name("Dave")
+                .lastName("Brown")
+                .email("dave@mail.com")
+                .password("hashedpassword4")
+                .role("USER")
+                .status(String.valueOf(Status.ACTIVE))
+                .phone("321-654-987")
+                .createdDate(LocalDateTime.now())
+                .updatedDate(LocalDateTime.now())
+                .skill(Set.of(javaSkill, cloudSkill))
+                .build();
+
+        userRepository.saveAll(Set.of(user3, user4));
+
+        JobPosting job = JobPosting.builder()
+                .jobTitle("Software Engineer - Backend Specialist")
+                .jobDescription("We are seeking a highly skilled Software Engineer to join our backend team. "
+                        + "The ideal candidate will have expertise in Java, cloud computing, and experience in "
+                        + "designing scalable backend systems. Responsibilities include developing APIs, "
+                        + "collaborating with frontend teams, and deploying services to cloud environments.")
+                .jobLocation("Remote")
+                .company(company)
+                .tag(Set.of(remoteTag, fullTimeTag, backendTag))
+                .applicant(Set.of(user1, user2))
+                .build();
+
+        jobPostingRepository.save(job);
 
         JobPosting job2 = JobPosting.builder()
-                .jobTitle("Data Scientist")
-                .jobDescription("Analyze data and build predictive models.")
+                .jobTitle("Data Scientist - Machine Learning Specialist")
+                .jobDescription("We are looking for a talented Data Scientist with expertise in Machine Learning. "
+                        + "The candidate will design and implement predictive models, analyze large datasets, "
+                        + "and deploy machine learning solutions to production environments.")
                 .jobLocation("New York")
-                .company(company2)
-                .tag(Set.of(urgentTag))
-                .applicant(Set.of(user2))
+                .company(company)
+                .tag(Set.of(urgentTag, backendTag))
+                .applicant(Set.of(user3))
                 .build();
 
-        jobPostingRepository.saveAll(Set.of(job1, job2));
+        JobPosting job3 = JobPosting.builder()
+                .jobTitle("Cloud Engineer")
+                .jobDescription("Join our team as a Cloud Engineer to design and maintain cloud-based infrastructure. "
+                        + "The ideal candidate will have strong experience in cloud platforms, DevOps practices, "
+                        + "and scalable system architecture.")
+                .jobLocation("San Francisco")
+                .company(company)
+                .tag(Set.of(remoteTag, fullTimeTag, backendTag))
+                .applicant(Set.of(user4))
+                .build();
+
+        jobPostingRepository.saveAll(Set.of(job2, job3));
     }
 }
