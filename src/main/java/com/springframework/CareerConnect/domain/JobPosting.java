@@ -17,6 +17,7 @@ public class JobPosting{
     private Long jobId;
 
     private String jobTitle;
+    @Column(length = 1000)
     private String jobDescription;
     private String jobLocation;
 
