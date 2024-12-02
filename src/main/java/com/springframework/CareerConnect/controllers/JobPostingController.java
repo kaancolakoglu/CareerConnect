@@ -7,6 +7,7 @@ import com.springframework.CareerConnect.services.JobPostingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class JobPostingController {
     }
 
     @GetMapping("/jobPosting")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<JobPostingDTO>> listJobPostings() {
         List<JobPosting> jobPostings = (List<JobPosting>) jobPostingService.findAllJobPostings();
 
@@ -37,12 +39,14 @@ public class JobPostingController {
     }
 
     @GetMapping("/jobPosting/{jobId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<JobPosting> getJobPostingById(@PathVariable Long jobId) {
         JobPosting jobPosting = jobPostingService.findJobPostingById(jobId);
         return ResponseEntity.ok(jobPosting);
     }
 
     @PostMapping("/jobPosting")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<JobPosting> createJobPosting(@RequestBody JobPosting jobPosting) {
         JobPosting savedJobPosting = jobPostingService.createJobPosting(jobPosting);
         return new ResponseEntity<>(savedJobPosting, HttpStatus.CREATED);
