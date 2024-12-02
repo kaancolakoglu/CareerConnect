@@ -7,9 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
-
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Component
 @ConditionalOnProperty(name = "bootstrapdata.enabled", havingValue = "true", matchIfMissing = true)
@@ -23,6 +22,7 @@ public class DataBootstrap implements CommandLineRunner {
     private final SkillRepository skillRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     public DataBootstrap(AddressRepository addressRepository,
                          CompanyRepository companyRepository,
@@ -31,7 +31,8 @@ public class DataBootstrap implements CommandLineRunner {
                          SchoolRepository schoolRepository,
                          SkillRepository skillRepository,
                          TagRepository tagRepository,
-                         UserRepository userRepository) {
+                         UserRepository userRepository,
+                         RoleRepository roleRepository) {
         this.addressRepository = addressRepository;
         this.companyRepository = companyRepository;
         this.educationRepository = educationRepository;
@@ -40,6 +41,7 @@ public class DataBootstrap implements CommandLineRunner {
         this.skillRepository = skillRepository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -55,6 +57,10 @@ public class DataBootstrap implements CommandLineRunner {
         Tag fullTimeTag = Tag.builder().tagName("Full-Time").build();
         Tag backendTag = Tag.builder().tagName("Backend Development").build();
         tagRepository.saveAll(Set.of(remoteTag, urgentTag, fullTimeTag, backendTag));
+
+        Role role_admin = Role.builder().name("ROLE_ADMIN").build();
+        Role role_user = Role.builder().name("ROLE_USER").build();
+        Role role_company = Role.builder().name("ROLE_COMPANY").build();
 
         Company company = Company.builder().name("Tech Solutions Inc.").build();
 
@@ -76,7 +82,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .lastName("Johnson")
                 .email("alice@mail.com")
                 .password("hashedpassword1")
-                .role("USER")
+                .roles(Set.of(role_user))
                 .status(String.valueOf(Status.ACTIVE))
                 .phone("123-456-789")
                 .createdDate(LocalDateTime.now())
@@ -91,7 +97,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .lastName("Smith")
                 .email("bob@mail.com")
                 .password("hashedpassword2")
-                .role("USER")
+                .roles(Set.of(role_user))
                 .status(String.valueOf(Status.ACTIVE))
                 .phone("987-654-321")
                 .createdDate(LocalDateTime.now())
@@ -107,7 +113,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .lastName("Williams")
                 .email("carol@mail.com")
                 .password("hashedpassword3")
-                .role("USER")
+                .roles(Set.of(role_user))
                 .status(String.valueOf(Status.ACTIVE))
                 .phone("456-789-123")
                 .createdDate(LocalDateTime.now())
@@ -121,7 +127,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .lastName("Brown")
                 .email("dave@mail.com")
                 .password("hashedpassword4")
-                .role("USER")
+                .roles(Set.of(role_user))
                 .status(String.valueOf(Status.ACTIVE))
                 .phone("321-654-987")
                 .createdDate(LocalDateTime.now())
@@ -130,6 +136,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .build();
 
         userRepository.saveAll(Set.of(user3, user4));
+        roleRepository.saveAll(Set.of(role_user, role_company));
 
         JobPosting job = JobPosting.builder()
                 .jobTitle("Software Engineer - Backend Specialist")

@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
-
 
 
 @Entity
@@ -26,11 +26,17 @@ public class User {
     private String lastName;
     private String email;
     private String password;
-    private String role;
     private String status;
     private String phone;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
+
+
+    @ManyToMany
+    @JoinTable(name = "user_role",
+    joinColumns = @JoinColumn(name = "profile_id"),
+    inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "user_address",
@@ -63,6 +69,5 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
-
 
 }
