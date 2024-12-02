@@ -7,6 +7,7 @@ import com.springframework.CareerConnect.domain.User;
 import com.springframework.CareerConnect.model.CompanyDTO;
 import com.springframework.CareerConnect.model.JobPostingDTO;
 import com.springframework.CareerConnect.model.TagDTO;
+import com.springframework.CareerConnect.model.UserDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -27,6 +28,9 @@ public interface MapStructMapper {
 
     CompanyDTO mapToCompanyDTO(Company company);
     Company mapToCompany(CompanyDTO companyDTO);
+
+    UserDTO mapToUserDTO(User user);
+    User mapToUser(UserDTO userDTO);
 
 
     //TODO: Implement that part differently
