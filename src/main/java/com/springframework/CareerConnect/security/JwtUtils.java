@@ -19,13 +19,13 @@ import java.util.Date;
 
 @Component
 @Slf4j
-public class JwtTokenUtil {
+public class JwtUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
 
-    public JwtTokenUtil() throws Exception {
+    public JwtUtils() throws Exception {
         this.publicKey = loadPublicKey("src/main/resources/keys/public_key.pem");
         this.privateKey = loadPrivateKey("src/main/resources/keys/private_key.pem");
     }

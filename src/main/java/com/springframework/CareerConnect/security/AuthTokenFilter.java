@@ -19,12 +19,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class JwtTokenFilter extends OncePerRequestFilter {
+public class AuthTokenFilter extends OncePerRequestFilter {
 
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtUtils jwtUtils;
 
-    public JwtTokenFilter(JwtTokenUtil jwtTokenUtil) {
-        this.jwtTokenUtil = jwtTokenUtil;
+    public AuthTokenFilter(JwtUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
 
     }
 
@@ -34,7 +34,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            if (jwtTokenUtil.validateToken(token)) {
+            if (jwtUtils.validateToken(token)) {
                 UserDetails userDetails = getUserDetails(token);
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -46,7 +46,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private UserDetails getUserDetails(String token) {
-        Claims claims = jwtTokenUtil.parseClaims(token);
+        Claims claims = jwtUtils.parseClaims(token);
         String subject = claims.getSubject();
         String roles = claims.get("roles", String.class);
 
@@ -61,6 +61,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 .collect(Collectors.toSet());
         user.setRoles(roleSet);
 
-        return new CustomUserDetails(user);
+        return new UserDetailsImpl(user);
     }
 }

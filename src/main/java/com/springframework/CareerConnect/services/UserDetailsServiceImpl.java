@@ -3,7 +3,7 @@ package com.springframework.CareerConnect.services;
 import com.springframework.CareerConnect.domain.Role;
 import com.springframework.CareerConnect.domain.User;
 import com.springframework.CareerConnect.repositories.UserRepository;
-import com.springframework.CareerConnect.security.CustomUserDetails;
+import com.springframework.CareerConnect.security.UserDetailsImpl;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,10 +18,10 @@ import java.util.Set;
 
 @Service
 @Transactional
-public class CustomUserDetailsService implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
-    public CustomUserDetailsService(UserRepository userRepository) {
+    public UserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -32,7 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("No user found with username: " + email);
         }
 
-        return new CustomUserDetails(user);
+        return new UserDetailsImpl(user);
     }
 
     private static List<GrantedAuthority> getAuthorities(Set<Role> roles) {
