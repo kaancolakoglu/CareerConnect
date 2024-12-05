@@ -1,95 +1,65 @@
 package com.springframework.CareerConnect.security;
 
-import com.springframework.CareerConnect.domain.User;
 import io.jsonwebtoken.*;
-import lombok.extern.slf4j.Slf4j;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
+import java.security.Key;
 import java.util.Date;
 
 @Component
-@Slf4j
 public class JwtUtils {
-
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-    private final RSAPublicKey publicKey;
-    private final RSAPrivateKey privateKey;
 
-    public JwtUtils() throws Exception {
-        this.publicKey = loadPublicKey("src/main/resources/keys/public_key.pem");
-        this.privateKey = loadPrivateKey("src/main/resources/keys/private_key.pem");
-    }
+    @Value("${careerconnect.app.jwtSecret}")
+    private String jwtSecret;
 
-    private static final long EXPIRE_DURATION = 24 * 60 * 60 * 1000;
+    @Value("${careerconnect.app.jwtExpirationMs}")
+    private int jwtExpirationMs;
 
-    public String generateAccessToken(User user) {
-        return Jwts.builder().setSubject(String.format("%s, %s", user.getProfileId(), user.getEmail()))
-                .setIssuer("CareerConnect")
+    public String generateJwtToken(Authentication authentication) {
+
+        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+
+        String token = Jwts.builder()
+                .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
-                .claim("roles", user.getRoles())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
-                .signWith(SignatureAlgorithm.RS512, privateKey)
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
+        logger.info("Generated JWT token: {}", token);
+        return token;
 
     }
 
-   public Claims parseClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(token).getBody();
+    private Key key() {
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    }
 
-   }
+    public String getUserNameFromJwtToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(key()).build()
+                .parseClaimsJws(token).getBody().getSubject();
+    }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String authToken) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(publicKey)
-                    .build()
-                    .parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
             return true;
-        } catch (ExpiredJwtException ex) {
-            logger.debug("JWT expired: {}" , ex.getMessage());
-        } catch (IllegalArgumentException ex) {
-            logger.debug("Token is null, empty or has only whitespace: {}", ex.getMessage());
-        } catch (MalformedJwtException ex) {
-            logger.debug("JWT is invalid: {}", ex.getMessage());
-        } catch (UnsupportedJwtException ex) {
-            logger.debug("JWT is not supported: {}", ex.getMessage());
-        } catch (SignatureException ex) {
-            logger.debug("Signature validation failed: {}", ex.getMessage());
+        } catch (MalformedJwtException e) {
+            logger.error("Invalid JWT token: {}", e.getMessage());
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT token is expired: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.error("JWT token is unsupported: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.error("JWT claims string is empty: {}", e.getMessage());
         }
+
         return false;
-    }
-
-    //Hiç emin değilim
-
-    private RSAPublicKey loadPublicKey(String filePath) throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get(filePath)))
-                .replace("-----BEGIN PUBLIC KEY-----", "")
-                .replace("-----END PUBLIC KEY-----", "")
-                .replaceAll("\\s+", "");
-        byte[] decoded = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return (RSAPublicKey) keyFactory.generatePublic(spec);
-    }
-
-    private RSAPrivateKey loadPrivateKey(String filePath) throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get(filePath)))
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "")
-                .replaceAll("\\s+", "");
-        byte[] decoded = Base64.getDecoder().decode(key);
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(decoded);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return (RSAPrivateKey) keyFactory.generatePrivate(spec);
     }
 }
