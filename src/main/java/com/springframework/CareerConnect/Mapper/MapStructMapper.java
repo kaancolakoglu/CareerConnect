@@ -32,8 +32,6 @@ public interface MapStructMapper {
     UserDTO mapToUserDTO(User user);
     User mapToUser(UserDTO userDTO);
 
-
-    //TODO: Implement that part differently
     default List<String> mapTagsToTagNames(Set<Tag> tags) {
         if (tags == null) {
             return List.of();

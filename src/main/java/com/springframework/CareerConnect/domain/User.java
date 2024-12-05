@@ -1,6 +1,7 @@
 package com.springframework.CareerConnect.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,17 +15,27 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
-@Table(name = "app_user") //Because user was a reserved keyword in MSSQL
+@Table(name = "users") //Because user was a reserved keyword in MSSQL
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long profileId;
 
+    //@NotBlank
+    //@Size(max = 20)
     private String username;
+
     private String name;
     private String lastName;
+
+    //@NotBlank
+    //@Size(max = 50)
+    @Email
     private String email;
+
+    //@NotBlank
+    //@Size(max = 120)
     private String password;
     private String status;
     private String phone;
@@ -70,4 +81,9 @@ public class User {
     @JoinColumn(name = "company_id")
     private Company company;
 
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 }

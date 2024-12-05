@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService {
 
         User user = new User();
         mapStructMapper.mapToUserDTO(user);
-        //user.setRole();
         return userRepository.save(user);
     }
 
