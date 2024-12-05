@@ -1,6 +1,7 @@
 package com.springframework.CareerConnect.bootstrap;
 
 import com.springframework.CareerConnect.domain.*;
+import com.springframework.CareerConnect.enums.ERole;
 import com.springframework.CareerConnect.enums.Status;
 import com.springframework.CareerConnect.repositories.*;
 import org.springframework.boot.CommandLineRunner;
@@ -58,9 +59,11 @@ public class DataBootstrap implements CommandLineRunner {
         Tag backendTag = Tag.builder().tagName("Backend Development").build();
         tagRepository.saveAll(Set.of(remoteTag, urgentTag, fullTimeTag, backendTag));
 
-        Role role_admin = Role.builder().name("ROLE_ADMIN").build();
-        Role role_user = Role.builder().name("ROLE_USER").build();
-        Role role_company = Role.builder().name("ROLE_COMPANY").build();
+        Role roleAdmin = Role.builder().name(ERole.ROLE_ADMIN).build();
+        Role roleUser = Role.builder().name(ERole.ROLE_USER).build();
+        Role roleCompany = Role.builder().name(ERole.ROLE_COMPANY).build();
+
+        roleRepository.saveAll(Set.of(roleAdmin, roleUser, roleCompany));
 
         Company company = Company.builder().name("Tech Solutions Inc.").build();
 
@@ -82,7 +85,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .lastName("Johnson")
                 .email("alice@mail.com")
                 .password("hashedpassword1")
-                .roles(Set.of(role_user))
+                .roles(Set.of(roleUser))
                 .status(String.valueOf(Status.ACTIVE))
                 .phone("123-456-789")
                 .createdDate(LocalDateTime.now())
@@ -97,7 +100,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .lastName("Smith")
                 .email("bob@mail.com")
                 .password("hashedpassword2")
-                .roles(Set.of(role_user))
+                .roles(Set.of(roleUser))
                 .status(String.valueOf(Status.ACTIVE))
                 .phone("987-654-321")
                 .createdDate(LocalDateTime.now())
@@ -113,7 +116,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .lastName("Williams")
                 .email("carol@mail.com")
                 .password("hashedpassword3")
-                .roles(Set.of(role_user))
+                .roles(Set.of(roleUser))
                 .status(String.valueOf(Status.ACTIVE))
                 .phone("456-789-123")
                 .createdDate(LocalDateTime.now())
@@ -127,7 +130,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .lastName("Brown")
                 .email("dave@mail.com")
                 .password("hashedpassword4")
-                .roles(Set.of(role_user))
+                .roles(Set.of(roleUser))
                 .status(String.valueOf(Status.ACTIVE))
                 .phone("321-654-987")
                 .createdDate(LocalDateTime.now())
@@ -136,7 +139,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .build();
 
         userRepository.saveAll(Set.of(user3, user4));
-        roleRepository.saveAll(Set.of(role_user, role_company));
+        roleRepository.saveAll(Set.of(roleUser, roleCompany));
 
         JobPosting job = JobPosting.builder()
                 .jobTitle("Software Engineer - Backend Specialist")
