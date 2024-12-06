@@ -1,23 +1,37 @@
 package com.springframework.CareerConnect.domain;
 
-import com.springframework.CareerConnect.domain.JobPosting;
+import com.springframework.CareerConnect.enums.ERole;
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-@Builder
-public class Company {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long companyId;
+public class Company extends BaseUser {
 
-    private String name;
+    @NotBlank
+    private String companyName;
+
+    @NotBlank
+    private String companyRegistrationNumber;
+
+    @NotBlank
+    private String sectorName;
+
+    @NotBlank
+    private Long companySize;
+    private String companyDescription;
+    private String companyWebsite;
+
+    private String companyLogoUrl;
 
     @ManyToMany
     @JoinTable(name = "company_address",
@@ -32,4 +46,24 @@ public class Company {
     @OneToMany(mappedBy = "company")
     private Set<JobPosting> jobPosting;
 
+    @Builder
+    public Company(String companyName, String companyRegistrationNumber,
+                   String sectorName, Long companySize, String companyDescription, String companyWebsite,
+                   Long profileId, String name, String email, String password,
+                   LocalDateTime createdDate, LocalDateTime updatedDate, String companyLogoUrl,
+                   String lastLoginDate, String status, ERole role,
+                   Set<Address> address, Set<User> user, Set<JobPosting> jobPosting) {
+        super(profileId, name, email, password, createdDate, updatedDate, lastLoginDate, status, role);
+        this.companyName = companyName;
+        this.companyRegistrationNumber = companyRegistrationNumber;
+        this.sectorName = sectorName;
+        this.companySize = companySize;
+        this.companyDescription = companyDescription;
+        this.companyWebsite = companyWebsite;
+        this.address = address;
+        this.user = user;
+        this.jobPosting = jobPosting;
+        this.companyLogoUrl = companyLogoUrl;
+
+    }
 }

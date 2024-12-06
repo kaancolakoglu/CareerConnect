@@ -1,7 +1,7 @@
 package com.springframework.CareerConnect.domain;
 
+import com.springframework.CareerConnect.enums.ERole;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,33 +14,12 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
 @Table(name = "users") //Because user was a reserved keyword in MSSQL
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long profileId;
-
-    //@NotBlank
-    //@Size(max = 20)
-    private String username;
+public class User extends BaseUser {
 
     private String name;
     private String lastName;
-
-    //@NotBlank
-    //@Size(max = 50)
-    @Email
-    private String email;
-
-    //@NotBlank
-    //@Size(max = 120)
-    private String password;
-    private String status;
     private String phone;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
 
 
     @ManyToMany
@@ -82,8 +61,23 @@ public class User {
     private Company company;
 
     public User(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
+        super(username, email, password);
     }
+
+    @Builder
+    public User(Long profileId, String username, String password, LocalDateTime createdDate, LocalDateTime updatedDate, String lastLoginDate, String status, ERole role, String name, String lastName, String email, String phone, Set<Role> roles, Set<Address> address, Set<JobPosting> savedJobPosting, Set<Skill> skill, Set<School> school, Company company) {
+        super(profileId, username,email, password, createdDate, updatedDate, lastLoginDate, status, role);
+        this.name = name;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.roles = roles;
+        this.address = address;
+        this.savedJobPosting = savedJobPosting;
+        this.skill = skill;
+        this.school = school;
+        this.company = company;
+    }
+
+
+
 }

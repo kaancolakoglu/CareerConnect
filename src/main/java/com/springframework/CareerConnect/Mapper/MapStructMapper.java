@@ -46,7 +46,7 @@ public interface MapStructMapper {
             return List.of();
         }
         return applicants.stream()
-                .map(User::getUsername)
+                .map(User::getName)
                 .toList();
     }
 

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+
 @Component
 @ConditionalOnProperty(name = "bootstrapdata.enabled", havingValue = "true", matchIfMissing = true)
 public class DataBootstrap implements CommandLineRunner {
@@ -139,7 +140,6 @@ public class DataBootstrap implements CommandLineRunner {
                 .build();
 
         userRepository.saveAll(Set.of(user3, user4));
-        roleRepository.saveAll(Set.of(roleUser, roleCompany));
 
         JobPosting job = JobPosting.builder()
                 .jobTitle("Software Engineer - Backend Specialist")
