@@ -2,6 +2,7 @@ package com.springframework.CareerConnect.domain;
 
 import com.springframework.CareerConnect.enums.ERole;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,8 +18,12 @@ import java.util.Set;
 @Table(name = "users") //Because user was a reserved keyword in MSSQL
 public class User extends BaseUser {
 
+    @NotBlank
     private String name;
+
+    @NotBlank
     private String lastName;
+
     private String phone;
 
 
@@ -65,7 +70,7 @@ public class User extends BaseUser {
     }
 
     @Builder
-    public User(Long profileId, String username, String password, LocalDateTime createdDate, LocalDateTime updatedDate, String lastLoginDate, String status, ERole role, String name, String lastName, String email, String phone, Set<Role> roles, Set<Address> address, Set<JobPosting> savedJobPosting, Set<Skill> skill, Set<School> school, Company company) {
+    public User(Long profileId, String username, String password, LocalDateTime createdDate, LocalDateTime updatedDate, LocalDateTime lastLoginDate, String status, ERole role, String name, String lastName, String email, String phone, Set<Role> roles, Set<Address> address, Set<JobPosting> savedJobPosting, Set<Skill> skill, Set<School> school, Company company) {
         super(profileId, username,email, password, createdDate, updatedDate, lastLoginDate, status, role);
         this.name = name;
         this.lastName = lastName;

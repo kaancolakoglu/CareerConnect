@@ -27,7 +27,7 @@ public class JobPostingController {
     }
 
     @GetMapping("/jobPosting")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<JobPostingDTO>> listJobPostings() {
         List<JobPosting> jobPostings = (List<JobPosting>) jobPostingService.findAllJobPostings();
 
@@ -39,14 +39,14 @@ public class JobPostingController {
     }
 
     @GetMapping("/jobPosting/{jobId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<JobPosting> getJobPostingById(@PathVariable Long jobId) {
         JobPosting jobPosting = jobPostingService.findJobPostingById(jobId);
         return ResponseEntity.ok(jobPosting);
     }
 
     @PostMapping("/jobPosting")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<JobPosting> createJobPosting(@RequestBody JobPosting jobPosting) {
         JobPosting savedJobPosting = jobPostingService.createJobPosting(jobPosting);
         return new ResponseEntity<>(savedJobPosting, HttpStatus.CREATED);

@@ -51,7 +51,7 @@ public class Company extends BaseUser {
                    String sectorName, Long companySize, String companyDescription, String companyWebsite,
                    Long profileId, String name, String email, String password,
                    LocalDateTime createdDate, LocalDateTime updatedDate, String companyLogoUrl,
-                   String lastLoginDate, String status, ERole role,
+                   LocalDateTime lastLoginDate, String status, ERole role,
                    Set<Address> address, Set<User> user, Set<JobPosting> jobPosting) {
         super(profileId, name, email, password, createdDate, updatedDate, lastLoginDate, status, role);
         this.companyName = companyName;

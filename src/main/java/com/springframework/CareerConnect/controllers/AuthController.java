@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -89,12 +90,17 @@ public class AuthController {
                     .collect(Collectors.toList());
 
             logger.info("Authentication successful for user: {}", loginRequest.getUsername());
+            Optional<User> user = userRepository.findByUsername(loginRequest.getUsername());
+            user.get().setLastLoginDate(LocalDateTime.now());
+            userRepository.save(user.get());
 
             return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(),
                     userDetails.getUsername(),
                     userDetails.getEmail(),
                     roles
             ));
+
+
         } catch (BadCredentialsException e) {
             logger.warn("Failed authentication attempt for username: {}, Reason: Invalid Credentials",
                     obfuscateUsername(loginRequest.getUsername()));
@@ -125,6 +131,7 @@ public class AuthController {
 
             user.setCreatedDate(LocalDateTime.now());
             user.setStatus("ACTIVE");
+            user.setUpdatedDate(LocalDateTime.now());
 
             Set<String> strRoles = signupRequest.getRole();
             Set<Role> roles = new HashSet<>();

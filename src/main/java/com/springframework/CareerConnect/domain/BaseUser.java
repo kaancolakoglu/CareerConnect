@@ -48,7 +48,7 @@ public abstract class BaseUser implements Serializable {
     private LocalDateTime updatedDate;
 
     @NotBlank
-    private String lastLoginDate;
+    private LocalDateTime lastLoginDate;
 
     @NotBlank
     private String status;
