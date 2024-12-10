@@ -3,10 +3,12 @@ package com.springframework.CareerConnect.controllers;
 import com.springframework.CareerConnect.domain.Role;
 import com.springframework.CareerConnect.domain.User;
 import com.springframework.CareerConnect.enums.ERole;
+import com.springframework.CareerConnect.payload.request.CompanySignupRequest;
 import com.springframework.CareerConnect.payload.request.LoginRequest;
-import com.springframework.CareerConnect.payload.request.SignupRequest;
+import com.springframework.CareerConnect.payload.request.UserSignupRequest;
 import com.springframework.CareerConnect.payload.response.JwtResponse;
 import com.springframework.CareerConnect.payload.response.MessageResponse;
+import com.springframework.CareerConnect.repositories.CompanyRepository;
 import com.springframework.CareerConnect.repositories.RoleRepository;
 import com.springframework.CareerConnect.repositories.UserRepository;
 import com.springframework.CareerConnect.security.JwtUtils;
@@ -44,16 +46,18 @@ public class AuthController {
     private final JwtUtils jwtUtils;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private final CompanyRepository companyRepository;
 
 
     public AuthController(AuthenticationManager authenticationManager,
                           UserRepository userRepository, RoleRepository roleRepository,
-                          PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
+                          PasswordEncoder passwordEncoder, JwtUtils jwtUtils, CompanyRepository companyRepository) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
+        this.companyRepository = companyRepository;
     }
 
     @PostMapping("/signin")
@@ -108,32 +112,35 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
+    @PostMapping("/user/signup")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserSignupRequest userSignupRequest) {
 
         try {
             logger.info("Signup Request Received - Username: {}, Email: {}",
-                    signupRequest.getUsername(), signupRequest.getEmail());
+                    userSignupRequest.getUsername(), userSignupRequest.getEmail());
 
-            if (Boolean.TRUE.equals(userRepository.existsByUsername(signupRequest.getUsername()))) {
-                logger.warn("Username already exists: {}", signupRequest.getUsername());
+            if (Boolean.TRUE.equals(userRepository.existsByUsername(userSignupRequest.getUsername()))) {
+                logger.warn("Username already exists: {}", userSignupRequest.getUsername());
                 return ResponseEntity.badRequest().body("Error: Username is already taken!");
             }
-            if (Boolean.TRUE.equals(userRepository.existsByEmail(signupRequest.getEmail()))) {
-                logger.warn("Email already exists: {}", signupRequest.getEmail());
+            if (Boolean.TRUE.equals(userRepository.existsByEmail(userSignupRequest.getEmail()))) {
+                logger.warn("Email already exists: {}", userSignupRequest.getEmail());
                 return ResponseEntity.badRequest().body("Error: Email is already in use!");
             }
             User user = new User(
-                    signupRequest.getUsername(),
-                    signupRequest.getEmail(),
-                    passwordEncoder.encode(signupRequest.getPassword()
+                    userSignupRequest.getUsername(),
+                    userSignupRequest.getEmail(),
+                    userSignupRequest.getFirstName(),
+                    userSignupRequest.getLastName(),
+                    passwordEncoder.encode(userSignupRequest.getPassword()
                     ));
 
             user.setCreatedDate(LocalDateTime.now());
+
             user.setStatus("ACTIVE");
             user.setUpdatedDate(LocalDateTime.now());
 
-            Set<String> strRoles = signupRequest.getRole();
+            Set<String> strRoles = userSignupRequest.getRole();
             Set<Role> roles = new HashSet<>();
 
             if (strRoles == null || strRoles.isEmpty()) {
@@ -179,6 +186,79 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/company/signup")
+    public ResponseEntity<?> registerCompany(@Valid @RequestBody CompanySignupRequest companySignupRequest) {
+
+        try {
+            logger.info("Signup Request Received - Username: {}, Email: {}",
+                    companySignupRequest.getUsername(), companySignupRequest.getEmail());
+
+            if (Boolean.TRUE.equals(userRepository.existsByUsername(companySignupRequest.getUsername()))) {
+                logger.warn("Company already exists: {}", companySignupRequest.getUsername());
+                return ResponseEntity.badRequest().body("Error: Username is already taken!");
+            }
+            if (Boolean.TRUE.equals(userRepository.existsByEmail(companySignupRequest.getEmail()))) {
+                logger.warn("Email already exists: {}", companySignupRequest.getEmail());
+                return ResponseEntity.badRequest().body("Error: Email is already in use!");
+            }
+            User company = new User(
+                    companySignupRequest.getUsername(),
+                    companySignupRequest.getEmail(),
+                    companySignupRequest.getCompanyName(),
+                    passwordEncoder.encode(companySignupRequest.getPassword()
+                    ));
+
+            company.setCreatedDate(LocalDateTime.now());
+            company.setSector("UNSPECIFIED");
+            company.setStatus("ACTIVE");
+            company.setUpdatedDate(LocalDateTime.now());
+
+            Set<String> strRoles = companySignupRequest.getRole();
+            Set<Role> roles = new HashSet<>();
+
+            if (strRoles == null || strRoles.isEmpty()) {
+                Role userRole = roleRepository.findByName(ERole.ROLE_COMPANY)
+                        .orElseThrow(() -> {
+                            logger.error("Default COMPANY role not found in database");
+                            return new RuntimeException("Error: Default role not found.");
+                        });
+                roles.add(userRole);
+                logger.info("Assigned default COMPANY role");
+
+            } else {
+                strRoles.forEach(roleName -> {
+                    try {
+                        switch (roleName.toLowerCase()) {
+                            case "admin":
+                                Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                                        .orElseThrow(() -> new RuntimeException("Admin role not found"));
+                                roles.add(adminRole);
+                                break;
+                            case "company":
+                                Role companyRole = roleRepository.findByName(ERole.ROLE_COMPANY)
+                                        .orElseThrow(() -> new RuntimeException("Company role is not found."));
+                                roles.add(companyRole);
+                                break;
+                            default:
+                                Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                                        .orElseThrow(() -> new RuntimeException("User role is not found."));
+                                roles.add(userRole);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Role assignment error for role: {}", roleName, e);
+                    }
+                });
+            }
+            company.setRoles(roles);
+            userRepository.save(company);
+            logger.info("User registered successfully: {}", company.getUsername());
+            return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        } catch (Exception e) {
+            logger.error("Signup error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponse("Signup failed: " + e.getMessage()));
+        }
+    }
+
     private String obfuscateUsername(String username) {
         if (username == null || username.length() <= 2) {
             return "***";
@@ -193,6 +273,4 @@ public class AuthController {
                 ? "Authentication error occurred"
                 : message;
     }
-
-
 }

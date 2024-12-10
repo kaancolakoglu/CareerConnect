@@ -26,6 +26,7 @@ public class User extends BaseUser {
 
     private String phone;
 
+    private String sector;
 
     @ManyToMany
     @JoinTable(name = "user_role",
@@ -65,8 +66,10 @@ public class User extends BaseUser {
     @JoinColumn(name = "company_id")
     private Company company;
 
-    public User(String username, String email, String password) {
+    public User(String username, String email,String firstname, String lastName, String password) {
         super(username, email, password);
+        this.name = firstname;
+        this.lastName = lastName;
     }
 
     @Builder
@@ -83,6 +86,9 @@ public class User extends BaseUser {
         this.company = company;
     }
 
-
+    public User(String username, String email,String firstname, String password) {
+        super(username, email, password);
+        this.name = firstname;
+    }
 
 }
