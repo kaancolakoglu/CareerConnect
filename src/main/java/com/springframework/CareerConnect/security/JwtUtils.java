@@ -30,6 +30,8 @@ public class JwtUtils {
                 .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                //TODO: FIX
+                //.setHeaderParam("roles", "ROLE_ADMIN")
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
         logger.info("Generated JWT token: {}", token);

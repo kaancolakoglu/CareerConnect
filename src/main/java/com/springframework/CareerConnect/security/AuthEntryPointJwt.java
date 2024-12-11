@@ -30,6 +30,14 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
         body.put("message", authException.getMessage());
         body.put("path", request.getServletPath());
 
+        //TODO: FIX
+        String roles = null;
+        if (request.getUserPrincipal() != null) {
+            roles = request.isUserInRole("ROLE_ADMIN") ? "Admin" : "User";
+        }
+        body.put("roles", "ROLE_ADMIN");
+
+
         final ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(response.getOutputStream(), body);
     }
