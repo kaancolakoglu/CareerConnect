@@ -23,18 +23,15 @@ public class JwtUtils {
     private int jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication) {
-
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
-        String token = Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
+        return Jwts.builder()
+                .setSubject(userPrincipal.getUsername())
+                .claim("role", userPrincipal.getAuthorities().stream().findFirst().get().getAuthority())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
-        logger.info("Generated JWT token: {}", token);
-        return token;
-
     }
 
     private Key key() {

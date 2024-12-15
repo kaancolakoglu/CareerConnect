@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -28,6 +29,7 @@ public class Company extends BaseUser {
 
     @NotBlank
     private Long companySize;
+
     private String companyDescription;
     private String companyWebsite;
 
@@ -66,4 +68,19 @@ public class Company extends BaseUser {
         this.companyLogoUrl = companyLogoUrl;
 
     }
+
+    @Builder
+    public Company(String companyName, String companyRegistrationNumber, String sectorName, Long companySize, String username, String email, String password) {
+        super(username, email, password);
+        this.companyName = companyName;
+        this.companyRegistrationNumber = companyRegistrationNumber;
+        this.sectorName = sectorName;
+        this.companySize = companySize;
+    }
+
+    @ManyToMany
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "profile_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 }

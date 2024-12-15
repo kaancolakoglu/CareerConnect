@@ -2,31 +2,33 @@ package com.springframework.CareerConnect.payload.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
 public class CompanySignupRequest {
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
+    @NotBlank
+    @Size(min = 3, max = 20)
     private String username;
 
-    @NotBlank(message = "Email is required")
-    @Size(max = 50, message = "Email must be less than 50 characters")
-    @Email(message = "Invalid email format")
     private String companyName;
+
+    private String companyRegistrationNumber;
+
+    private String sectorName;
+
+    private Long companySize;
 
     @NotBlank
     @Size(max = 50)
     @Email
     private String email;
 
-    @NotEmpty(message = "At least one role is required")
+    @NotBlank
     private Set<String> role;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 40, message = "Password must be between 6 and 40 characters")
+    @NotBlank
+    @Size(min = 6, max = 40)
     private String password;
 
     public String getUsername() {
@@ -61,11 +63,35 @@ public class CompanySignupRequest {
         this.role = role;
     }
 
-    public @NotBlank String getCompanyName() {
+    public String getCompanyName() {
         return companyName;
     }
 
-    public void setCompanyName(@NotBlank String companyName) {
+    public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public String getCompanyRegistrationNumber() {
+        return companyRegistrationNumber;
+    }
+
+    public void setCompanyRegistrationNumber(String companyRegistrationNumber) {
+        this.companyRegistrationNumber = companyRegistrationNumber;
+    }
+
+    public String getSectorName() {
+        return sectorName;
+    }
+
+    public void setSectorName(String sectorName) {
+        this.sectorName = sectorName;
+    }
+
+    public Long getCompanySize() {
+        return companySize;
+    }
+
+    public void setCompanySize(Long companySize) {
+        this.companySize = companySize;
     }
 }

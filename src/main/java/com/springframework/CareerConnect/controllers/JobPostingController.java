@@ -4,17 +4,18 @@ import com.springframework.CareerConnect.Mapper.MapStructMapper;
 import com.springframework.CareerConnect.domain.JobPosting;
 import com.springframework.CareerConnect.model.JobPostingDTO;
 import com.springframework.CareerConnect.services.JobPostingService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+
 @RestController
-@RequestMapping("/api/jobPosting")
+@RequestMapping("/api/v1")
+@Slf4j
 public class JobPostingController {
     private final JobPostingService jobPostingService;
     private final MapStructMapper mapStructMapper;
@@ -24,8 +25,9 @@ public class JobPostingController {
         this.mapStructMapper = mapStructMapper;
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('COMPANY') or hasRole('ADMIN')")
+    //TODO: FIX
+    @GetMapping("/jobPosting")
+    //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<JobPostingDTO>> listJobPostings() {
         List<JobPosting> jobPostings = (List<JobPosting>) jobPostingService.findAllJobPostings();
 
@@ -36,15 +38,16 @@ public class JobPostingController {
         return ResponseEntity.ok(jobPostingDTOS);
     }
 
-    @GetMapping("/{jobId}")
-    @PreAuthorize("hasRole('USER') or hasRole('COMPANY') or hasRole('ADMIN')")
-    public ResponseEntity<JobPosting> getJobPostingById(@PathVariable Long jobId) {
-        JobPosting jobPosting = jobPostingService.findJobPostingById(jobId);
+    @GetMapping("/jobPosting/{jobId}")
+    //@PreAuthorize("hasRole('admin')")
+    public ResponseEntity<JobPostingDTO> getJobPostingById(@PathVariable Long jobId) {
+        JobPostingDTO jobPosting = mapStructMapper.mapToJobPostingDTO(jobPostingService.findJobPostingById(jobId));
+
         return ResponseEntity.ok(jobPosting);
     }
 
-    @PostMapping
-    @PreAuthorize("hasRole('COMPANY') or hasRole('ADMIN')")
+    @PostMapping("/jobPosting")
+    //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<JobPosting> createJobPosting(@RequestBody JobPosting jobPosting) {
         JobPosting savedJobPosting = jobPostingService.createJobPosting(jobPosting);
         return new ResponseEntity<>(savedJobPosting, HttpStatus.CREATED);
