@@ -1,27 +1,34 @@
 package com.springframework.CareerConnect.controllers;
 
+import com.springframework.CareerConnect.domain.Company;
 import com.springframework.CareerConnect.domain.Role;
 import com.springframework.CareerConnect.domain.User;
 import com.springframework.CareerConnect.enums.ERole;
+import com.springframework.CareerConnect.exceptions.ErrorResponse;
+import com.springframework.CareerConnect.payload.request.CompanySignupRequest;
 import com.springframework.CareerConnect.payload.request.LoginRequest;
 import com.springframework.CareerConnect.payload.request.SignupRequest;
 import com.springframework.CareerConnect.payload.response.JwtResponse;
 import com.springframework.CareerConnect.payload.response.MessageResponse;
+import com.springframework.CareerConnect.repositories.CompanyRepository;
 import com.springframework.CareerConnect.repositories.RoleRepository;
 import com.springframework.CareerConnect.repositories.UserRepository;
 import com.springframework.CareerConnect.security.JwtUtils;
 import com.springframework.CareerConnect.security.UserDetailsImpl;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,10 +42,12 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
+@Slf4j
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
@@ -47,10 +56,11 @@ public class AuthController {
 
 
     public AuthController(AuthenticationManager authenticationManager,
-                          UserRepository userRepository, RoleRepository roleRepository,
+                          UserRepository userRepository, CompanyRepository companyRepository, RoleRepository roleRepository,
                           PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
+        this.companyRepository = companyRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
@@ -59,16 +69,33 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser (@Valid @RequestBody LoginRequest loginRequest) {
         try {
+            User user = userRepository.findByUsername(loginRequest.getUsername())
+                    .orElseThrow(() -> {
+                        logger.error("No user found with username: {}", loginRequest.getUsername());
+                        throw new UsernameNotFoundException("User not found");
+                    });
+
+            logger.info("Found User - Username: {}", user.getUsername());
+            logger.info("Stored Password Length: {}", user.getPassword().length());
+
+            // Explicit password check
+            if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                logger.error("Password mismatch for username: {}", loginRequest.getUsername());
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponse("Invalid credentials"));
+            }
+
             logger.info("Authentication attempt for username: {}",
                     obfuscateUsername(loginRequest.getUsername()));
 
             return getResponseEntity(loginRequest);
         } catch (Exception e) {
-            logger.error("Authentication process failed", e);
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageResponse("Authentication failed: " + getSafeErrorMessage(e)));
-        }
+        logger.error("Authentication error", e);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse("Authentication failed: " + e.getMessage()));
+    }
     }
 
     private ResponseEntity<?> getResponseEntity(LoginRequest loginRequest) {
@@ -179,6 +206,41 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/company-signup")
+    public ResponseEntity<?> registerCompany(@Valid @RequestBody CompanySignupRequest signupRequest) {
+        if (signupRequest.getPassword().length() < 8) {
+            return ResponseEntity.badRequest().body("Password must be at least 8 characters long");
+        }
+
+        if (!isValidEmail(signupRequest.getEmail())) {
+            return ResponseEntity.badRequest().body("Invalid email format");
+        }
+
+        if (companyRepository.existsByUsername(signupRequest.getUsername())) {
+            return ResponseEntity.badRequest().body("Error: Company username is already taken!");
+        }
+        if (companyRepository.existsByEmail(signupRequest.getEmail())) {
+            return ResponseEntity.badRequest().body("Error: Company email is already in use!");
+        }
+
+        Company company = new Company(
+                signupRequest.getCompanyName(),
+                signupRequest.getCompanyRegistrationNumber(),
+                signupRequest.getSectorName(),
+                signupRequest.getCompanySize(),
+                signupRequest.getUsername(),
+                signupRequest.getEmail(),
+                passwordEncoder.encode(signupRequest.getPassword())
+        );
+
+        Role companyRole = roleRepository.findByName(ERole.ROLE_COMPANY)
+                .orElseThrow(() -> new RuntimeException("Error: Company role not found."));
+        company.setRoles(Set.of(companyRole));
+        companyRepository.save(company);
+
+        return ResponseEntity.ok(new MessageResponse("Company registered successfully!"));
+    }
+
     private String obfuscateUsername(String username) {
         if (username == null || username.length() <= 2) {
             return "***";
@@ -194,5 +256,78 @@ public class AuthController {
                 : message;
     }
 
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return email.matches(emailRegex);
+    }
+
+
+//    @PostMapping("/company-signin")
+//    public ResponseEntity<?> authenticateCompany(@Valid @RequestBody LoginRequest loginRequest) {
+//        Authentication authentication = authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+//        );
+//
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        String jwt = jwtUtils.generateJwtToken(authentication);
+//
+//        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+//        List<String> roles = userDetails.getAuthorities().stream()
+//                .map(GrantedAuthority::getAuthority)
+//                .collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
+//    }
+
+    @PostMapping("/company-signin")
+    public ResponseEntity<?> authenticateCompany(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            Company company = companyRepository.findByUsername(loginRequest.getUsername())
+                    .orElseThrow(() -> {
+                        log.error("No company found with username: {}", loginRequest.getUsername());
+                        throw new UsernameNotFoundException("Company not found");
+                    });
+
+            log.info("Found Company - Username: {}", company.getUsername());
+            log.info("Stored Password Length: {}", company.getPassword().length());
+
+            // Explicit password check
+            if (!passwordEncoder.matches(loginRequest.getPassword(), company.getPassword())) {
+                log.error("Password mismatch for username: {}", loginRequest.getUsername());
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponse("Invalid credentials"));
+            }
+
+
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
+
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new com.springframework.CareerConnect.exceptions.ErrorResponse("Invalid username or password"));
+        } catch (LockedException e) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(new com.springframework.CareerConnect.exceptions.ErrorResponse("Account is locked"));
+        }  catch (Exception e) {
+            log.error("Authentication error", e);
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Authentication failed: " + e.getMessage()));
+        }
+    }
 
 }

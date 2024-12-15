@@ -1,6 +1,7 @@
 package com.springframework.CareerConnect.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springframework.CareerConnect.domain.Company;
 import com.springframework.CareerConnect.domain.User;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.security.core.GrantedAuthority;
@@ -104,5 +105,19 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37).append(profileId).append(username).append(email).append(password).append(authorities).toHashCode();
+    }
+
+    public static UserDetailsImpl build(Company company) {
+        List<GrantedAuthority> authorities = company.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .collect(Collectors.toList());
+
+        return new UserDetailsImpl(
+                company.getProfileId(),
+                company.getUsername(),
+                company.getEmail(),
+                company.getPassword(),
+                authorities
+        );
     }
 }
