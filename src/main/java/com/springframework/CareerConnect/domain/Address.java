@@ -29,6 +29,4 @@ public class Address {
 
     @ManyToMany(mappedBy = "address")
     private Set<Company> company;
-
-
 }

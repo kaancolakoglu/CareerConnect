@@ -65,6 +65,9 @@ public class User extends BaseUser {
     @JoinColumn(name = "company_id")
     private Company company;
 
+
+
+
     public User(String username, String email, String password) {
         super(username, email, password);
     }

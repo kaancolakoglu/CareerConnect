@@ -20,9 +20,9 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
+            throws IOException, ServletException {
         logger.error("Unauthorized error: {}", authException.getMessage());
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
 
         final Map<String, Object> body = new HashMap<>();
         body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
@@ -30,14 +30,20 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
         body.put("message", authException.getMessage());
         body.put("path", request.getServletPath());
 
-        //TODO: FIX
-        String roles = null;
+        String roles = "Anonymous";
         if (request.getUserPrincipal() != null) {
-            roles = request.isUserInRole("ROLE_ADMIN") ? "Admin" : "User";
+            if (request.isUserInRole("ROLE_ADMIN")) {
+                roles = "Admin";
+            } else if (request.isUserInRole("ROLE_COMPANY")) {
+                roles = "Company";
+            } else if (request.isUserInRole("ROLE_USER")) {
+                roles = "User";
+            }
         }
-        body.put("roles", "ROLE_ADMIN");
+        body.put("roles", roles);
 
-
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         final ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(response.getOutputStream(), body);
     }

@@ -4,10 +4,7 @@ import com.springframework.CareerConnect.domain.Company;
 import com.springframework.CareerConnect.domain.JobPosting;
 import com.springframework.CareerConnect.domain.Tag;
 import com.springframework.CareerConnect.domain.User;
-import com.springframework.CareerConnect.model.CompanyDTO;
-import com.springframework.CareerConnect.model.JobPostingDTO;
-import com.springframework.CareerConnect.model.TagDTO;
-import com.springframework.CareerConnect.model.UserDTO;
+import com.springframework.CareerConnect.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -29,8 +26,15 @@ public interface MapStructMapper {
     CompanyDTO mapToCompanyDTO(Company company);
     Company mapToCompany(CompanyDTO companyDTO);
 
+
+    CompanyProfileDetailsDTO mapToCompanyProfileDetailsDTO(Company company);
+    Company mapToCompany(CompanyProfileDetailsDTO companyProfileDetailsDTO);
+
     UserDTO mapToUserDTO(User user);
     User mapToUser(UserDTO userDTO);
+
+    UpdateCompanyDetailsDTO mapToUpdateCompanyDetailsDTO(Company company);
+    Company mapToCompany(UpdateCompanyDetailsDTO updateCompanyDetailsDTO);
 
     default List<String> mapTagsToTagNames(Set<Tag> tags) {
         if (tags == null) {

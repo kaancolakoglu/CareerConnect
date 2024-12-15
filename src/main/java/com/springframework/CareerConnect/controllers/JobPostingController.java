@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 @Slf4j
 public class JobPostingController {
     private final JobPostingService jobPostingService;
@@ -40,8 +40,9 @@ public class JobPostingController {
 
     @GetMapping("/jobPosting/{jobId}")
     //@PreAuthorize("hasRole('admin')")
-    public ResponseEntity<JobPosting> getJobPostingById(@PathVariable Long jobId) {
-        JobPosting jobPosting = jobPostingService.findJobPostingById(jobId);
+    public ResponseEntity<JobPostingDTO> getJobPostingById(@PathVariable Long jobId) {
+        JobPostingDTO jobPosting = mapStructMapper.mapToJobPostingDTO(jobPostingService.findJobPostingById(jobId));
+
         return ResponseEntity.ok(jobPosting);
     }
 
