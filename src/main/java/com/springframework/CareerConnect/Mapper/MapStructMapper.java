@@ -1,9 +1,6 @@
 package com.springframework.CareerConnect.Mapper;
 
-import com.springframework.CareerConnect.domain.Company;
-import com.springframework.CareerConnect.domain.JobPosting;
-import com.springframework.CareerConnect.domain.Tag;
-import com.springframework.CareerConnect.domain.User;
+import com.springframework.CareerConnect.domain.*;
 import com.springframework.CareerConnect.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -53,6 +50,10 @@ public interface MapStructMapper {
                 .map(User::getName)
                 .toList();
     }
+
+
+    ApplicationDTO mapToApplicationDTO(Application application);
+    Application mapToApplication(ApplicationDTO applicationDTO);
 
 
 

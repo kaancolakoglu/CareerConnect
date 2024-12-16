@@ -250,7 +250,6 @@ public class AuthController {
 
     private String getSafeErrorMessage(Exception e) {
         String message = e.getMessage();
-        // Prevent leaking sensitive information
         return message != null && message.length() > 50
                 ? "Authentication error occurred"
                 : message;
@@ -260,24 +259,6 @@ public class AuthController {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         return email.matches(emailRegex);
     }
-
-
-//    @PostMapping("/company-signin")
-//    public ResponseEntity<?> authenticateCompany(@Valid @RequestBody LoginRequest loginRequest) {
-//        Authentication authentication = authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-//        );
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//        String jwt = jwtUtils.generateJwtToken(authentication);
-//
-//        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//        List<String> roles = userDetails.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toList());
-//
-//        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
-//    }
 
     @PostMapping("/company-signin")
     public ResponseEntity<?> authenticateCompany(@Valid @RequestBody LoginRequest loginRequest) {
@@ -291,7 +272,6 @@ public class AuthController {
             log.info("Found Company - Username: {}", company.getUsername());
             log.info("Stored Password Length: {}", company.getPassword().length());
 
-            // Explicit password check
             if (!passwordEncoder.matches(loginRequest.getPassword(), company.getPassword())) {
                 log.error("Password mismatch for username: {}", loginRequest.getUsername());
                 return ResponseEntity

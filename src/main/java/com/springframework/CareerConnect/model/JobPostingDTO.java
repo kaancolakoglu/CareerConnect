@@ -16,5 +16,6 @@ public class JobPostingDTO {
     private String jobDescription;
     private String jobLocation;
     private List<String> tags;
+    private String companyName;
     private List<String> applicantNames;
 }

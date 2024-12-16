@@ -49,6 +49,20 @@ public class UserDetailsImpl implements UserDetails {
                 authorities);
     }
 
+    public static UserDetailsImpl build(Company company) {
+        List<GrantedAuthority> authorities = company.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .collect(Collectors.toList());
+
+        return new UserDetailsImpl(
+                company.getProfileId(),
+                company.getUsername(),
+                company.getEmail(),
+                company.getPassword(),
+                authorities
+        );
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
@@ -107,17 +121,5 @@ public class UserDetailsImpl implements UserDetails {
         return new HashCodeBuilder(17, 37).append(profileId).append(username).append(email).append(password).append(authorities).toHashCode();
     }
 
-    public static UserDetailsImpl build(Company company) {
-        List<GrantedAuthority> authorities = company.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
 
-        return new UserDetailsImpl(
-                company.getProfileId(),
-                company.getUsername(),
-                company.getEmail(),
-                company.getPassword(),
-                authorities
-        );
-    }
 }

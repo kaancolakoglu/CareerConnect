@@ -3,6 +3,7 @@ package com.springframework.CareerConnect.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -38,4 +39,7 @@ public class JobPosting{
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
+
+    @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Application> applications;
 }
