@@ -24,68 +24,55 @@ public class User extends BaseUser {
     @NotBlank
     private String lastName;
 
-    private String phone;
-
-
     @ManyToMany
     @JoinTable(name = "user_role",
     joinColumns = @JoinColumn(name = "profile_id"),
-    inverseJoinColumns = @JoinColumn(name = "role_id"))
+    inverseJoinColumns = @JoinColumn(name = "role_id"),
+            foreignKey = @ForeignKey(name = "FK_USER_ROLE"),
+            inverseForeignKey = @ForeignKey(name = "FK_ROLE_USER")
+    )
     private Set<Role> roles = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "user_address",
             joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "address_id"))
+            inverseJoinColumns = @JoinColumn(name = "address_id"),
+            foreignKey = @ForeignKey(name = "FK_USER_ADDRESS"),
+            inverseForeignKey = @ForeignKey(name = "FK_ADDRESS_USER")
+    )
     private Set<Address> address;
 
+
+    //TODO: Draw that to ER diagram
     @ManyToMany
     @JoinTable(name = "saved_job_posting",
             joinColumns = @JoinColumn(name = "profile_id"),
             inverseJoinColumns = @JoinColumn(name = "job_id"))
     private Set<JobPosting> savedJobPosting;
 
-
-    @ManyToMany
-    @JoinTable(name = "user_skills",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id")
-    )
-    private Set<Skill> skill;
-
-    @ManyToMany
-    @JoinTable(name = "user_schools",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "school_id")
-        )
-    private Set<School> school;
-
-
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
 
-
-
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Resume> resumes =  new HashSet<>();
 
     public User(String username, String email, String password) {
         super(username, email, password);
     }
 
     @Builder
-    public User(Long profileId, String username, String password, LocalDateTime createdDate, LocalDateTime updatedDate, LocalDateTime lastLoginDate, String status, ERole role, String name, String lastName, String email, String phone, Set<Role> roles, Set<Address> address, Set<JobPosting> savedJobPosting, Set<Skill> skill, Set<School> school, Company company) {
-        super(profileId, username,email, password, createdDate, updatedDate, lastLoginDate, status, role);
+    public User(Long profileId, String username, String phoneNumber, String password, LocalDateTime createdDate,
+                LocalDateTime updatedDate, LocalDateTime lastLoginDate, String status,
+                ERole role, String name, String lastName, String email, Set<Role> roles,
+                Set<Address> address, Set<JobPosting> savedJobPosting, Company company, Set<Resume> resumes) {
+        super(profileId, username, phoneNumber ,email, password, createdDate, updatedDate, lastLoginDate, status, role);
         this.name = name;
         this.lastName = lastName;
-        this.phone = phone;
         this.roles = roles;
         this.address = address;
         this.savedJobPosting = savedJobPosting;
-        this.skill = skill;
-        this.school = school;
         this.company = company;
+        this.resumes = resumes;
     }
-
-
-
 }

@@ -85,9 +85,11 @@ public class CompanyServiceImpl implements CompanyService {
                     })
                     .collect(Collectors.toSet());
 
+
+
             addressRepository.saveAll(updatedAddresses);
 
-            company.setAddress(updatedAddresses);
+            company.setAddressId(updatedAddresses);
         }
         Company updatedCompany = companyRepository.save(company);
 

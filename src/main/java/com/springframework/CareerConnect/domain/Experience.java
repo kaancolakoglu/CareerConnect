@@ -6,25 +6,26 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "education")
-public class Education {
+@Builder
+@Table(name = "experience")
+public class Experience {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long educationId;
+    private Long experienceId;
 
-    private String schoolName;
+    private String companyName;
 
-    private String degree;
-
-    private String major;
+    private String jobTitle;
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "resume_id")

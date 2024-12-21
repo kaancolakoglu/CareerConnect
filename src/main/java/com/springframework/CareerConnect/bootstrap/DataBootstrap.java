@@ -7,10 +7,12 @@ import com.springframework.CareerConnect.repositories.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Set;
-
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 
 @Component
 @ConditionalOnProperty(name = "bootstrapdata.enabled", havingValue = "true", matchIfMissing = true)
@@ -20,7 +22,8 @@ public class DataBootstrap implements CommandLineRunner {
     private final CompanyRepository companyRepository;
     private final EducationRepository educationRepository;
     private final JobPostingRepository jobPostingRepository;
-    private final SchoolRepository schoolRepository;
+    private final ResumeRepository resumeRepository;
+    private final ExperienceRepository experienceRepository;
     private final SkillRepository skillRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
@@ -30,16 +33,19 @@ public class DataBootstrap implements CommandLineRunner {
                          CompanyRepository companyRepository,
                          EducationRepository educationRepository,
                          JobPostingRepository jobPostingRepository,
-                         SchoolRepository schoolRepository,
+                         ResumeRepository resumeRepository,
+                         ExperienceRepository experienceRepository,
                          SkillRepository skillRepository,
                          TagRepository tagRepository,
                          UserRepository userRepository,
-                         RoleRepository roleRepository) {
+                         RoleRepository roleRepository
+    ) {
         this.addressRepository = addressRepository;
         this.companyRepository = companyRepository;
         this.educationRepository = educationRepository;
         this.jobPostingRepository = jobPostingRepository;
-        this.schoolRepository = schoolRepository;
+        this.resumeRepository = resumeRepository;
+        this.experienceRepository = experienceRepository;
         this.skillRepository = skillRepository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
@@ -47,27 +53,67 @@ public class DataBootstrap implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) {
+        // Initialize Skills
         Skill javaSkill = Skill.builder().name("Java").build();
         Skill pythonSkill = Skill.builder().name("Python").build();
         Skill mlSkill = Skill.builder().name("Machine Learning").build();
         Skill cloudSkill = Skill.builder().name("Cloud Computing").build();
-        skillRepository.saveAll(Set.of(javaSkill, pythonSkill, mlSkill, cloudSkill));
+        skillRepository.saveAll(new HashSet<>(Arrays.asList(javaSkill, pythonSkill, mlSkill, cloudSkill)));
 
+        // Initialize Tags
         Tag remoteTag = Tag.builder().tagName("Remote").build();
         Tag urgentTag = Tag.builder().tagName("Urgent").build();
         Tag fullTimeTag = Tag.builder().tagName("Full-Time").build();
         Tag backendTag = Tag.builder().tagName("Backend Development").build();
-        tagRepository.saveAll(Set.of(remoteTag, urgentTag, fullTimeTag, backendTag));
+        tagRepository.saveAll(new HashSet<>(Arrays.asList(remoteTag, urgentTag, fullTimeTag, backendTag)));
 
+        // Initialize Roles
         Role roleAdmin = Role.builder().name(ERole.ROLE_ADMIN).build();
         Role roleUser = Role.builder().name(ERole.ROLE_USER).build();
         Role roleCompany = Role.builder().name(ERole.ROLE_COMPANY).build();
+        roleRepository.saveAll(new HashSet<>(Arrays.asList(roleAdmin, roleUser, roleCompany)));
 
-        roleRepository.saveAll(Set.of(roleAdmin, roleUser, roleCompany));
+        // Create and save Resume
+        Resume resume1 = Resume.builder()
+                .resumeName("Resume 1")
+                .skills(new HashSet<>(Arrays.asList(javaSkill, cloudSkill)))
+                .educations(new HashSet<>())
+                .experiences(new HashSet<>())
+                .build();
 
+        resume1 = resumeRepository.save(resume1);
+
+        Education education1 = Education.builder()
+                .degree("Bachelor's")
+                .major("Computer Science")
+                .schoolName("Example University")
+                .startDate(LocalDateTime.now().minusYears(4))
+                .endDate(LocalDateTime.now().minusYears(1))
+                .resume(resume1)
+                .build();
+
+        education1 = educationRepository.save(education1);
+
+        Experience experience1 = Experience.builder()
+                .companyName("Tech Corp")
+                .description("Developed backend services")
+                .jobTitle("Backend Developer")
+                .startDate(LocalDateTime.now().minusYears(1))
+                .endDate(LocalDateTime.now())
+                .resume(resume1)
+                .build();
+
+        experience1 = experienceRepository.save(experience1);
+
+        resume1.setEducations(new HashSet<>(Collections.singletonList(education1)));
+        resume1.setExperiences(new HashSet<>(Collections.singletonList(experience1)));
+
+        Resume savedResume1 = resumeRepository.save(resume1);
+
+        // Initialize Company
         Company company = Company.builder().name("Tech Solutions Inc.").build();
-
         Address companyAddress = Address.builder()
                 .street("789 Corporate Blvd")
                 .city("San Francisco")
@@ -75,24 +121,23 @@ public class DataBootstrap implements CommandLineRunner {
                 .country("USA")
                 .zipCode("94103")
                 .build();
-
-        company.setAddress(Set.of(companyAddress));
+        company.setAddressId(new HashSet<>(Collections.singletonList(companyAddress)));
         addressRepository.save(companyAddress);
         companyRepository.save(company);
 
+        // Initialize Users
         User user1 = User.builder()
                 .username("alice123")
                 .name("Alice")
                 .lastName("Johnson")
                 .email("alice@mail.com")
-                .password("hashedpassword1")
-                .roles(Set.of(roleUser))
+                .password("hashedpassword1") // Replace with actual hashed password
+                .roles(new HashSet<>(Arrays.asList(roleUser)))
                 .status(String.valueOf(Status.ACTIVE))
-                .phone("123-456-789")
+                .phoneNumber("123-456-789")
                 .createdDate(LocalDateTime.now())
                 .updatedDate(LocalDateTime.now())
-                .skill(Set.of(javaSkill))
-                .skill(Set.of(pythonSkill))
+                .resumes(new HashSet<>(Collections.singletonList(resume1)))
                 .build();
 
         User user2 = User.builder()
@@ -100,83 +145,36 @@ public class DataBootstrap implements CommandLineRunner {
                 .name("Bob")
                 .lastName("Smith")
                 .email("bob@mail.com")
-                .password("hashedpassword2")
-                .roles(Set.of(roleUser))
+                .password("hashedpassword2") // Replace with actual hashed password
+                .roles(new HashSet<>(Arrays.asList(roleUser)))
                 .status(String.valueOf(Status.ACTIVE))
-                .phone("987-654-321")
+                .phoneNumber("987-654-321")
                 .createdDate(LocalDateTime.now())
                 .updatedDate(LocalDateTime.now())
-                .skill(Set.of(pythonSkill))
+                .resumes(new HashSet<>(Collections.singletonList(resume1)))
                 .build();
 
-        userRepository.saveAll(Set.of(user1, user2));
+        userRepository.saveAll(new HashSet<>(Arrays.asList(user1, user2)));
 
-        User user3 = User.builder()
-                .username("carol789")
-                .name("Carol")
-                .lastName("Williams")
-                .email("carol@mail.com")
-                .password("hashedpassword3")
-                .roles(Set.of(roleUser))
-                .status(String.valueOf(Status.ACTIVE))
-                .phone("456-789-123")
-                .createdDate(LocalDateTime.now())
-                .updatedDate(LocalDateTime.now())
-                .skill(Set.of(mlSkill, cloudSkill))
-                .build();
-
-        User user4 = User.builder()
-                .username("dave012")
-                .name("Dave")
-                .lastName("Brown")
-                .email("dave@mail.com")
-                .password("hashedpassword4")
-                .roles(Set.of(roleUser))
-                .status(String.valueOf(Status.ACTIVE))
-                .phone("321-654-987")
-                .createdDate(LocalDateTime.now())
-                .updatedDate(LocalDateTime.now())
-                .skill(Set.of(javaSkill, cloudSkill))
-                .build();
-
-        userRepository.saveAll(Set.of(user3, user4));
-
-        JobPosting job = JobPosting.builder()
-                .jobTitle("Software Engineer - Backend Specialist")
-                .jobDescription("We are seeking a highly skilled Software Engineer to join our backend team. "
-                        + "The ideal candidate will have expertise in Java, cloud computing, and experience in "
-                        + "designing scalable backend systems. Responsibilities include developing APIs, "
-                        + "collaborating with frontend teams, and deploying services to cloud environments.")
+        // Initialize Job Postings
+        JobPosting job1 = JobPosting.builder()
+                .jobTitle("Backend Engineer")
+                .jobDescription("Develop APIs and microservices.")
                 .jobLocation("Remote")
                 .company(company)
-                .tag(Set.of(remoteTag, fullTimeTag, backendTag))
-                .applicant(Set.of(user1, user2))
+                .tag(new HashSet<>(Arrays.asList(backendTag,urgentTag,fullTimeTag)))
+                .applicant(new HashSet<>(Arrays.asList(user1, user2)))
                 .build();
-
-        jobPostingRepository.save(job);
 
         JobPosting job2 = JobPosting.builder()
-                .jobTitle("Data Scientist - Machine Learning Specialist")
-                .jobDescription("We are looking for a talented Data Scientist with expertise in Machine Learning. "
-                        + "The candidate will design and implement predictive models, analyze large datasets, "
-                        + "and deploy machine learning solutions to production environments.")
+                .jobTitle("Data Scientist")
+                .jobDescription("Analyze data and build ML models.")
                 .jobLocation("New York")
                 .company(company)
-                .tag(Set.of(urgentTag, backendTag))
-                .applicant(Set.of(user3))
+                .tag(new HashSet<>(Arrays.asList(remoteTag)))
+                .applicant(new HashSet<>(Arrays.asList(user2)))
                 .build();
 
-        JobPosting job3 = JobPosting.builder()
-                .jobTitle("Cloud Engineer")
-                .jobDescription("Join our team as a Cloud Engineer to design and maintain cloud-based infrastructure. "
-                        + "The ideal candidate will have strong experience in cloud platforms, DevOps practices, "
-                        + "and scalable system architecture.")
-                .jobLocation("San Francisco")
-                .company(company)
-                .tag(Set.of(remoteTag, fullTimeTag, backendTag))
-                .applicant(Set.of(user4))
-                .build();
-
-        jobPostingRepository.saveAll(Set.of(job2, job3));
+        jobPostingRepository.saveAll(new HashSet<>(Arrays.asList(job1, job2)));
     }
 }

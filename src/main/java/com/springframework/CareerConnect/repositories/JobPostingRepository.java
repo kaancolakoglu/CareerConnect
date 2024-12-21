@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface JobPostingRepository extends CrudRepository<JobPosting, String> {
-    Optional<JobPosting> findJobPostingByJobId(Long jobPostingId);
+    Optional<JobPosting> findJobPostingByJobId(Long jobId);
 }

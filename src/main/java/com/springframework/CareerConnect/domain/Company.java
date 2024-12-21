@@ -16,6 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(name = "company")
 public class Company extends BaseUser {
 
     @NotBlank
@@ -38,9 +39,11 @@ public class Company extends BaseUser {
     @ManyToMany
     @JoinTable(name = "company_address",
             joinColumns = @JoinColumn(name = "company_id"),
-            inverseJoinColumns = @JoinColumn(name = "address_id")
+            inverseJoinColumns = @JoinColumn(name = "address_id"),
+            foreignKey = @ForeignKey(name = "FK_COMPANY_ADDRESS"),
+            inverseForeignKey = @ForeignKey(name = "FK_ADDRESS_COMPANY")
     )
-    private Set<Address> address;
+    private Set<Address> addressId = new HashSet<>();
 
     @OneToMany(mappedBy = "company")
     private Set<User> user;
@@ -51,18 +54,18 @@ public class Company extends BaseUser {
     @Builder
     public Company(String companyName, String companyRegistrationNumber,
                    String sectorName, Long companySize, String companyDescription, String companyWebsite,
-                   Long profileId, String name, String email, String password,
+                   Long profileId, String name, String email, String phoneNumber, String password,
                    LocalDateTime createdDate, LocalDateTime updatedDate, String companyLogoUrl,
                    LocalDateTime lastLoginDate, String status, ERole role,
-                   Set<Address> address, Set<User> user, Set<JobPosting> jobPosting) {
-        super(profileId, name, email, password, createdDate, updatedDate, lastLoginDate, status, role);
+                   Set<Address> addressId, Set<User> user, Set<JobPosting> jobPosting) {
+        super(profileId, name, email,phoneNumber, password, createdDate, updatedDate, lastLoginDate, status, role);
         this.companyName = companyName;
         this.companyRegistrationNumber = companyRegistrationNumber;
         this.sectorName = sectorName;
         this.companySize = companySize;
         this.companyDescription = companyDescription;
         this.companyWebsite = companyWebsite;
-        this.address = address;
+        this.addressId = addressId;
         this.user = user;
         this.jobPosting = jobPosting;
         this.companyLogoUrl = companyLogoUrl;
@@ -81,6 +84,9 @@ public class Company extends BaseUser {
     @ManyToMany
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+            inverseJoinColumns = @JoinColumn(name = "role_id"),
+            foreignKey = @ForeignKey(name = "FK_USER_ROLE"),
+            inverseForeignKey = @ForeignKey(name = "FK_ROLE_USER")
+    )
     private Set<Role> roles = new HashSet<>();
 }

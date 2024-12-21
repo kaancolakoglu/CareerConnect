@@ -1,7 +1,9 @@
 package com.springframework.CareerConnect.repositories;
 
 import com.springframework.CareerConnect.domain.Tag;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface TagRepository extends CrudRepository<Tag, Long> {
+@Repository
+public interface TagRepository extends JpaRepository<Tag, Long> {
 }

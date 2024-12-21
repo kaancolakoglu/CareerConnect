@@ -33,10 +33,10 @@ class ApplicationControllerTest {
     @BeforeEach
     void setUp() {
         mockApplicationDTO = new ApplicationDTO();
-        mockApplicationDTO.setId(1L);
+        mockApplicationDTO.setApplicationId(1L);
         mockApplicationDTO.setJobId(1L);
         mockApplicationDTO.setUserId(1L);
-        mockApplicationDTO.setStatus("PENDING");
+        mockApplicationDTO.setApplicationStatus("PENDING");
         mockApplicationDTO.setSubmissionDate(LocalDateTime.now());
     }
 
@@ -88,7 +88,7 @@ class ApplicationControllerTest {
     @Test
     void testUpdateApplicationStatus() throws Exception {
         // Arrange
-        mockApplicationDTO.setStatus("ACCEPTED");
+        mockApplicationDTO.setApplicationStatus("ACCEPTED");
         when(applicationService.updateApplicationStatus(eq(1L), eq(ApplicationStatus.ACCEPTED)))
                 .thenReturn(mockApplicationDTO);
 
