@@ -23,4 +23,7 @@ public class Tag {
     @ManyToMany(mappedBy = "tag")
     private Set<JobPosting> jobPosting = new HashSet<>();
 
+    public Tag(String tagName) {
+        this.tagName = tagName;
+    }
 }

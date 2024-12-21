@@ -3,6 +3,7 @@ package com.springframework.CareerConnect.controllers;
 import com.springframework.CareerConnect.Mapper.MapStructMapper;
 import com.springframework.CareerConnect.domain.JobPosting;
 import com.springframework.CareerConnect.model.JobPostingDTO;
+import com.springframework.CareerConnect.model.JobPostingRequest;
 import com.springframework.CareerConnect.services.JobPostingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -48,8 +49,12 @@ public class JobPostingController {
 
     @PostMapping("/jobPosting")
     //@PreAuthorize("hasRole('admin')")
-    public ResponseEntity<JobPosting> createJobPosting(@RequestBody JobPosting jobPosting) {
-        JobPosting savedJobPosting = jobPostingService.createJobPosting(jobPosting);
-        return new ResponseEntity<>(savedJobPosting, HttpStatus.CREATED);
+    public ResponseEntity<JobPostingDTO> createJobPosting(@RequestBody JobPostingRequest jobPostingRequest) {
+        JobPosting savedJobPosting = jobPostingService.createJobPosting(
+                jobPostingRequest.getCompanyId(),
+                jobPostingRequest
+        );
+        JobPostingDTO jobPostingDTO= mapStructMapper.mapToJobPostingDTO(savedJobPosting);
+        return new ResponseEntity<>(jobPostingDTO, HttpStatus.CREATED);
     }
 }
