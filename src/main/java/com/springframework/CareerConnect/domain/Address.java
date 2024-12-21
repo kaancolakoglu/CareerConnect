@@ -3,6 +3,7 @@ package com.springframework.CareerConnect.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -11,6 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@Table(name = "address")
 public class Address {
 
     @Id
@@ -23,10 +25,6 @@ public class Address {
     private String country;
     private String zipCode;
 
-    @ManyToOne
-    @JoinColumn(name = "school_id")
-    private School school;
-
-    @ManyToMany(mappedBy = "address")
-    private Set<Company> company;
+    @ManyToMany(mappedBy = "addressId")
+    private Set<Company> company = new HashSet<>();
 }

@@ -10,9 +10,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class ApplicationDTO {
-    private Long id;
+    private Long applicationId;
     private Long jobId;
     private Long userId;
-    private String status;
+    private String applicationStatus;
+
     private LocalDateTime submissionDate;
 }

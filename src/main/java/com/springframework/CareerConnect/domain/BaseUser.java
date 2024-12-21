@@ -32,6 +32,8 @@ public abstract class BaseUser implements Serializable {
     @Size(min = 1, max = 20)
     private String username;
 
+    private String phoneNumber;
+
     @NotBlank
     @Email
     @Size(min = 5, max = 50)

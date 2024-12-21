@@ -1,8 +1,11 @@
 package com.springframework.CareerConnect.domain;
 
+import com.springframework.CareerConnect.enums.JobPostingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@Table(name = "jobPosting")
 public class JobPosting{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,6 +25,10 @@ public class JobPosting{
     @Column(length = 1000)
     private String jobDescription;
     private String jobLocation;
+
+    private LocalDateTime deadline;
+
+    private JobPostingStatus jobPostingStatus;
 
     @ManyToMany
     @JoinTable(name = "job_posting_tags",
@@ -41,5 +49,5 @@ public class JobPosting{
     private Company company;
 
     @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Application> applications;
+    private List<Application> applications = new ArrayList<>();
 }

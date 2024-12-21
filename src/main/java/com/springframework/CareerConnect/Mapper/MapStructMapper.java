@@ -31,6 +31,7 @@ public interface MapStructMapper {
     User mapToUser(UserDTO userDTO);
 
     UpdateCompanyDetailsDTO mapToUpdateCompanyDetailsDTO(Company company);
+
     Company mapToCompany(UpdateCompanyDetailsDTO updateCompanyDetailsDTO);
 
     default List<String> mapTagsToTagNames(Set<Tag> tags) {
@@ -52,9 +53,24 @@ public interface MapStructMapper {
     }
 
 
+    @Mapping(source = "jobPosting.jobId", target = "jobId")
+    @Mapping(source = "user.profileId", target = "userId")
     ApplicationDTO mapToApplicationDTO(Application application);
+
+    @Mapping(source = "jobId", target = "jobPosting.jobId")
+    @Mapping(source = "userId", target = "user.profileId")
     Application mapToApplication(ApplicationDTO applicationDTO);
 
 
+    @Mapping(target = "userName", source = "user.name")
+    @Mapping(target = "userLastName", source = "user.lastName")
+    ResumeDTO toResumeDTO(Resume resume);
 
+    @Mapping(target = "user", ignore = true)
+    Resume toResumeEntity(ResumeDTO resumeDTO);
+
+
+    List<EducationDTO> toEducationDTOList(Set<Education> educations);
+    List<ExperienceDTO> toExperienceDTOList(Set<Experience> experiences);
+    List<SkillDTO> toSkillDTOList(Set<Skill> skills);
 }
