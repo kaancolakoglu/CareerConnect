@@ -30,6 +30,8 @@ public class JobPosting{
 
     private JobPostingStatus jobPostingStatus;
 
+    private String sector;
+
     @ManyToMany
     @JoinTable(name = "job_posting_tags",
             joinColumns = @JoinColumn(name = "job_id"),
