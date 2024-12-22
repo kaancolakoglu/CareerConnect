@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface MapStructMapper {
 
-    @Mapping(target = "tag", expression = "java(mapTagsToTagNames(jobPosting.getTag()))")
-    @Mapping(target = "applicantNames", expression = "java(mapApplicantsToApplicantNames(jobPosting.getApplicant()))")
-    JobPostingDTO mapToJobPostingDTO(JobPosting jobPosting);
+    //@Mapping(target = "tag", expression = "java(mapTagsToTagNames(jobPosting.getTag()))")
+    //@Mapping(target = "applicantNames", expression = "java(mapApplicantsToApplicantNames(jobPosting.getApplicant()))")
+    //JobPostingDTO mapToJobPostingDTO(JobPosting jobPosting);
 
 
     //JobPosting mapToJobPosting(JobPostingRequest jobPostingRequest);

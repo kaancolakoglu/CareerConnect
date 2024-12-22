@@ -1,5 +1,6 @@
 package com.springframework.CareerConnect.controllers;
 
+import com.springframework.CareerConnect.Mapper.JobPostingMapper;
 import com.springframework.CareerConnect.Mapper.MapStructMapper;
 import com.springframework.CareerConnect.domain.JobPosting;
 import com.springframework.CareerConnect.model.JobPostingDTO;
@@ -26,14 +27,13 @@ public class JobPostingController {
         this.mapStructMapper = mapStructMapper;
     }
 
-    //TODO: FIX
     @GetMapping("/jobPosting")
     //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<JobPostingDTO>> listJobPostings() {
         List<JobPosting> jobPostings = (List<JobPosting>) jobPostingService.findAllJobPostings();
 
         List<JobPostingDTO> jobPostingDTOS = jobPostings.stream()
-                .map(mapStructMapper::mapToJobPostingDTO)
+                .map(JobPostingMapper::toJobPostingDTO)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(jobPostingDTOS);
@@ -42,7 +42,7 @@ public class JobPostingController {
     @GetMapping("/jobPosting/{jobId}")
     //@PreAuthorize("hasRole('admin')")
     public ResponseEntity<JobPostingDTO> getJobPostingById(@PathVariable Long jobId) {
-        JobPostingDTO jobPosting = mapStructMapper.mapToJobPostingDTO(jobPostingService.findJobPostingById(jobId));
+        JobPostingDTO jobPosting = JobPostingMapper.toJobPostingDTO(jobPostingService.findJobPostingById(jobId));
 
         return ResponseEntity.ok(jobPosting);
     }
@@ -54,7 +54,24 @@ public class JobPostingController {
                 jobPostingRequest.getCompanyId(),
                 jobPostingRequest
         );
-        JobPostingDTO jobPostingDTO= mapStructMapper.mapToJobPostingDTO(savedJobPosting);
+        JobPostingDTO jobPostingDTO= JobPostingMapper.toJobPostingDTO(savedJobPosting);
         return new ResponseEntity<>(jobPostingDTO, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/jobPosting/search")
+    public ResponseEntity<List<JobPostingDTO>> searchJobPostings(
+            @RequestParam(required = false) String jobTitle,
+            @RequestParam(required = false) String jobLocation,
+            @RequestParam(required = false) String companyName,
+            @RequestParam(required = false) String tagName,
+            @RequestParam(required = false) String sectorName) {
+
+        List<JobPosting> filteredJobPosting = jobPostingService.findJobPostingByCriteria(jobTitle, jobLocation, companyName, tagName, sectorName);
+
+        List<JobPostingDTO> jobPostingDTOs = filteredJobPosting.stream()
+                .map(JobPostingMapper::toJobPostingDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(jobPostingDTOs);
     }
 }

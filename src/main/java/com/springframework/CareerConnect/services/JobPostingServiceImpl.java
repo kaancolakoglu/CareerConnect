@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,7 +72,12 @@ public class JobPostingServiceImpl implements JobPostingService {
 
         company.setJobPosting(Collections.singleton(savedJobPosting));
 
-
         return savedJobPosting;
     }
+
+    @Override
+    public List<JobPosting> findJobPostingByCriteria(String jobTitle, String jobLocation, String companyName, String tagName, String sectorName) {
+        return jobPostingRepository.findJobPostingsByCriteria(jobTitle, jobLocation, companyName, tagName, sectorName);
+    }
+
 }
