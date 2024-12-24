@@ -23,11 +23,14 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, String> 
             "AND (:jobLocation IS NULL OR jp.job_location LIKE %:jobLocation%) " +
             "AND (:companyName IS NULL OR c.company_name LIKE %:companyName%) " +
             "AND (:tagName IS NULL OR t.tag_name LIKE %:tagName%) " +
-            "AND (:sectorName IS NULL OR c.sector_name LIKE %:sectorName%)",
+            "AND (:sectorName IS NULL OR c.sector_name LIKE %:sectorName%)" +
+            "AND (:companyId IS NULL OR c.profile_id = :companyId)",
             nativeQuery = true)
     List<JobPosting> findJobPostingsByCriteria(@Param("jobTitle") String jobTitle,
                                                @Param("jobLocation") String jobLocation,
                                                @Param("companyName") String companyName,
                                                @Param("tagName") String tagName,
-                                               @Param("sectorName") String sectorName);
+                                               @Param("sectorName") String sectorName,
+                                               @Param("companyId") Long companyId
+    );
 }

@@ -64,9 +64,11 @@ public class JobPostingController {
             @RequestParam(required = false) String jobLocation,
             @RequestParam(required = false) String companyName,
             @RequestParam(required = false) String tagName,
-            @RequestParam(required = false) String sectorName) {
+            @RequestParam(required = false) String sectorName,
+            @RequestParam(required = false) Long companyId
+    ) {
 
-        List<JobPosting> filteredJobPosting = jobPostingService.findJobPostingByCriteria(jobTitle, jobLocation, companyName, tagName, sectorName);
+        List<JobPosting> filteredJobPosting = jobPostingService.findJobPostingByCriteria(jobTitle, jobLocation, companyName, tagName, sectorName, companyId);
 
         List<JobPostingDTO> jobPostingDTOs = filteredJobPosting.stream()
                 .map(JobPostingMapper::toJobPostingDTO)

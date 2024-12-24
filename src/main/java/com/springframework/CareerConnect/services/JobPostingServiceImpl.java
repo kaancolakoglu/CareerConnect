@@ -76,8 +76,8 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
-    public List<JobPosting> findJobPostingByCriteria(String jobTitle, String jobLocation, String companyName, String tagName, String sectorName) {
-        return jobPostingRepository.findJobPostingsByCriteria(jobTitle, jobLocation, companyName, tagName, sectorName);
+    public List<JobPosting> findJobPostingByCriteria(String jobTitle, String jobLocation, String companyName, String tagName, String sectorName, Long companyId) {
+        return jobPostingRepository.findJobPostingsByCriteria(jobTitle, jobLocation, companyName, tagName, sectorName, companyId);
     }
 
 }
