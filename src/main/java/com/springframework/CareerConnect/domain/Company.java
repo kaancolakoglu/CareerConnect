@@ -73,12 +73,15 @@ public class Company extends BaseUser {
     }
 
     @Builder
-    public Company(String companyName, String companyRegistrationNumber, String sectorName, Long companySize, String username, String email, String password) {
+    public Company(String companyName, String companyRegistrationNumber,String sectorName, Long companySize, String username, String email,String password) {
         super(username, email, password);
         this.companyName = companyName;
         this.companyRegistrationNumber = companyRegistrationNumber;
-        this.sectorName = sectorName;
         this.companySize = companySize;
+        this.addressId = new HashSet<>();
+        this.user = new HashSet<>();
+        this.jobPosting = new HashSet<>();
+        this.sectorName = sectorName;
     }
 
     @ManyToMany

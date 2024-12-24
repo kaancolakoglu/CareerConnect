@@ -4,6 +4,7 @@ import com.springframework.CareerConnect.domain.Company;
 import com.springframework.CareerConnect.domain.Role;
 import com.springframework.CareerConnect.domain.User;
 import com.springframework.CareerConnect.enums.ERole;
+import com.springframework.CareerConnect.enums.Status;
 import com.springframework.CareerConnect.exceptions.ErrorResponse;
 import com.springframework.CareerConnect.payload.request.CompanySignupRequest;
 import com.springframework.CareerConnect.payload.request.LoginRequest;
@@ -33,10 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -209,17 +207,21 @@ public class AuthController {
     @PostMapping("/company-signup")
     public ResponseEntity<?> registerCompany(@Valid @RequestBody CompanySignupRequest signupRequest) {
         if (signupRequest.getPassword().length() < 8) {
+            log.error("Password must be at least 8 characters long");
             return ResponseEntity.badRequest().body("Password must be at least 8 characters long");
         }
 
         if (!isValidEmail(signupRequest.getEmail())) {
+            log.error("Email address is invalid");
             return ResponseEntity.badRequest().body("Invalid email format");
         }
 
         if (companyRepository.existsByUsername(signupRequest.getUsername())) {
+            log.error("Username already exists: {}", signupRequest.getUsername());
             return ResponseEntity.badRequest().body("Error: Company username is already taken!");
         }
         if (companyRepository.existsByEmail(signupRequest.getEmail())) {
+            log.error("Email already exists: {}", signupRequest.getEmail());
             return ResponseEntity.badRequest().body("Error: Company email is already in use!");
         }
 
@@ -236,8 +238,13 @@ public class AuthController {
         Role companyRole = roleRepository.findByName(ERole.ROLE_COMPANY)
                 .orElseThrow(() -> new RuntimeException("Error: Company role not found."));
         company.setRoles(Set.of(companyRole));
+        company.setUpdatedDate(LocalDateTime.now());
+        company.setLastLoginDate(LocalDateTime.now());
+        company.setCreatedDate(LocalDateTime.now());
+        company.setStatus(String.valueOf(Status.ACTIVE));
         companyRepository.save(company);
 
+        logger.info("Company registered successfully: {}", company.getUsername());
         return ResponseEntity.ok(new MessageResponse("Company registered successfully!"));
     }
 
@@ -263,9 +270,11 @@ public class AuthController {
     @PostMapping("/company-signin")
     public ResponseEntity<?> authenticateCompany(@Valid @RequestBody LoginRequest loginRequest) {
         try {
+            String correlationId = UUID.randomUUID().toString();
+            log.info("Starting authentication process - Reference: {}", correlationId);
             Company company = companyRepository.findByUsername(loginRequest.getUsername())
                     .orElseThrow(() -> {
-                        log.error("No company found with username: {}", loginRequest.getUsername());
+                        log.warn("Authentication failed - Reference: {}", correlationId);
                         throw new UsernameNotFoundException("Company not found");
                     });
 
@@ -279,6 +288,7 @@ public class AuthController {
                         .body(new ErrorResponse("Invalid credentials"));
             }
 
+            log.info("Authentication successful - Reference: {}", correlationId);
 
 
             Authentication authentication = authenticationManager.authenticate(
@@ -303,11 +313,11 @@ public class AuthController {
                     .status(HttpStatus.FORBIDDEN)
                     .body(new ErrorResponse("Account is locked"));
         }  catch (Exception e) {
-            log.error("Authentication error", e);
+            String safeMessage = getSafeErrorMessage(e);
+            log.error("Authentication error: {}", safeMessage);
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("Authentication failed: " + e.getMessage()));
+                    .body(new ErrorResponse("Authentication failed"));
         }
     }
-
 }

@@ -44,6 +44,4 @@ public class ApplicationController {
         ApplicationDTO updatedApplication = applicationService.updateApplicationStatus(applicationId, status);
         return ResponseEntity.ok(updatedApplication);
     }
-
-
 }
