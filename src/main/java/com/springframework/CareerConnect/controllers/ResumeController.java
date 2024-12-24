@@ -5,7 +5,10 @@ import com.springframework.CareerConnect.domain.Education;
 import com.springframework.CareerConnect.domain.Experience;
 import com.springframework.CareerConnect.domain.Resume;
 import com.springframework.CareerConnect.domain.Skill;
+import com.springframework.CareerConnect.exceptions.ResourceNotFoundException;
+import com.springframework.CareerConnect.exceptions.UnauthorizedAccessException;
 import com.springframework.CareerConnect.model.ResumeDTO;
+import com.springframework.CareerConnect.repositories.EducationRepository;
 import com.springframework.CareerConnect.repositories.ResumeRepository;
 import com.springframework.CareerConnect.services.ResumeService;
 import jakarta.validation.Valid;
@@ -22,11 +25,13 @@ public class ResumeController {
     private final ResumeService resumeService;
     private final ResumeRepository resumeRepository;
     private final MapStructMapper mapStructMapper;
+    private final EducationRepository educationRepository;
 
-    public ResumeController(ResumeService resumeService, ResumeRepository resumeRepository, MapStructMapper mapStructMapper) {
+    public ResumeController(ResumeService resumeService, ResumeRepository resumeRepository, MapStructMapper mapStructMapper, EducationRepository educationRepository) {
         this.resumeService = resumeService;
         this.resumeRepository = resumeRepository;
         this.mapStructMapper = mapStructMapper;
+        this.educationRepository = educationRepository;
     }
 
     @GetMapping("/resumes/{resumeId}")
@@ -56,6 +61,25 @@ public class ResumeController {
         }
     }
 
+    @DeleteMapping("/resumes/{resumeId}")
+    public ResponseEntity<Void> deleteResume(@PathVariable Long resumeId) {
+        log.info("Deleting resume with ID {}", resumeId);
+        try {
+            resumeService.deleteResumeById(resumeId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (ResourceNotFoundException e) {
+            log.error("Could not find resume with ID {}", resumeId);
+            throw e;
+        } catch (UnauthorizedAccessException e) {
+            log.error("Unauthorized access for resume with ID {}", resumeId);
+            throw e;
+        } catch (Exception e) {
+            log.error("Error deleting resume: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+
     @PostMapping("/resumes/{resumeId}/education")
     public ResponseEntity<ResumeDTO> addEducation(@PathVariable Long resumeId,
                                                @Valid @RequestBody Education education) {
@@ -72,6 +96,25 @@ public class ResumeController {
         }
     }
 
+    @DeleteMapping("/resumes/{resumeId}/education/{educationId}")
+    public ResponseEntity<Void> deleteEducation(@PathVariable Long resumeId, @PathVariable Long educationId) {
+        log.info("Deleting education with ID {}", educationId);
+        try {
+            resumeService.deleteEducationById(resumeId, educationId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (ResourceNotFoundException e) {
+            log.error("Could not find education with ID {}", educationId);
+            throw e;
+        } catch (UnauthorizedAccessException e) {
+            log.error("Unauthorized access for education with ID {}", educationId);
+            throw e;
+        } catch (Exception e) {
+            log.error("Error deleting education: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+
     @PostMapping("/resumes/{resumeId}/experience")
     public ResponseEntity<ResumeDTO> addExperience(@PathVariable Long resumeId,
                                                 @Valid @RequestBody Experience experience) {
@@ -84,6 +127,24 @@ public class ResumeController {
         } catch (Exception e) {
             log.error("Error adding experience: {}", e.getMessage());
             throw new RuntimeException("Failed to add experience {}", e);
+        }
+    }
+
+    @DeleteMapping("/resumes/{resumeId}/experience/{experienceId}")
+    public ResponseEntity<Void> deleteExperience(@PathVariable Long resumeId,Long experienceId) {
+        log.info("Deleting experience with ID {}", experienceId);
+        try {
+            resumeService.deleteExperienceById(resumeId,experienceId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (ResourceNotFoundException e) {
+            log.error("Could not find experience with ID {}", experienceId);
+            throw e;
+        } catch (UnauthorizedAccessException e) {
+            log.error("Unauthorized access for experience with ID {}", experienceId);
+            throw e;
+        } catch (Exception e) {
+            log.error("Error deleting experience: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -102,6 +163,21 @@ public class ResumeController {
         }
     }
 
-
-
+    @DeleteMapping("resumes/{resumeId}/skill/{skillId}")
+    public ResponseEntity<Void> deleteSkill(@PathVariable Long resumeId, @PathVariable Long skillId) {
+        log.info("Deleting skill with ID {}", skillId);
+        try {
+            resumeService.deleteSkillById(resumeId,skillId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (ResourceNotFoundException e) {
+            log.error("Could not find skill with ID {}", skillId);
+            throw e;
+        } catch (UnauthorizedAccessException e) {
+            log.error("Unauthorized access for skill with ID {}", skillId);
+            throw e;
+        } catch (Exception e) {
+            log.error("Error deleting skill: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

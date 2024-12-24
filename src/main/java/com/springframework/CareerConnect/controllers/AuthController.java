@@ -297,11 +297,11 @@ public class AuthController {
         } catch (BadCredentialsException e) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body(new com.springframework.CareerConnect.exceptions.ErrorResponse("Invalid username or password"));
+                    .body(new ErrorResponse("Invalid username or password"));
         } catch (LockedException e) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body(new com.springframework.CareerConnect.exceptions.ErrorResponse("Account is locked"));
+                    .body(new ErrorResponse("Account is locked"));
         }  catch (Exception e) {
             log.error("Authentication error", e);
             return ResponseEntity
