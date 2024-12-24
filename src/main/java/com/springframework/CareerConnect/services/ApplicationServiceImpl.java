@@ -12,6 +12,7 @@ import com.springframework.CareerConnect.model.ApplicationDTO;
 import com.springframework.CareerConnect.repositories.ApplicationRepository;
 import com.springframework.CareerConnect.repositories.JobPostingRepository;
 import com.springframework.CareerConnect.repositories.UserRepository;
+import com.sun.jdi.request.DuplicateRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         User user = userRepository.findById(applicationDTO.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + applicationDTO.getUserId()));
+
+        boolean applicationExists = applicationRepository.existsByUserProfileIdAndJobPostingJobId(
+                applicationDTO.getUserId(),
+                applicationDTO.getJobId()
+        );
+
+        if (applicationExists) {
+            throw new DuplicateRequestException("Application already exists");
+        }
 
         Application application = mapStructMapper.mapToApplication(applicationDTO);
         application.setJobPosting(jobPosting);

@@ -91,17 +91,20 @@ public class JobPostingServiceImpl implements JobPostingService {
             JobPosting jobPosting = jobPostingRepository.findJobPostingByJobId(jobId)
                     .orElseThrow(() -> new ResourceNotFoundException("JobPosting with id " + jobId + " not found"));
 
-            if(company.getJobPosting().contains(jobPosting)){
-
-                company.getJobPosting().remove(jobPosting);
-
-                jobPostingRepository.delete(jobPosting);
-                companyRepository.save(company);
+            if(!jobPosting.getCompany().getProfileId().equals(companyId)){
+                throw new IllegalArgumentException("Job posting " + jobId + " does not belong to company " + companyId);
             }
+            company.getJobPosting().remove(jobPosting);
+            jobPostingRepository.delete(jobPosting);
+            companyRepository.save(company);
+
+            log.info("Deleted job posting with id " + jobId);
         } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("JobPosting with id " + jobId + " not found");
+            throw new ResourceNotFoundException("Resource not found with id " + jobId);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid operation {}", e.getMessage());
         } catch (Exception e) {
-            log.error("An error occurred while deleting job posting with id " + jobId, e.getMessage());
+            log.error("Error deleting job posting with id " + jobId);
             throw new RuntimeException("An error occurred while deleting job posting with id " + jobId, e);
         }
     }
