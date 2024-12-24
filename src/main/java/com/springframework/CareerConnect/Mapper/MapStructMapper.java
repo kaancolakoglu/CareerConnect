@@ -5,17 +5,21 @@ import com.springframework.CareerConnect.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Mapper(componentModel = "spring")
 public interface MapStructMapper {
 
-    @Mapping(target = "tags", expression = "java(mapTagsToTagNames(jobPosting.getTag()))")
-    @Mapping(target = "applicantNames", expression = "java(mapApplicantsToApplicantNames(jobPosting.getApplicant()))")
-    JobPostingDTO mapToJobPostingDTO(JobPosting jobPosting);
-    JobPosting mapToJobPosting(JobPostingDTO jobPostingDTO);
+    //@Mapping(target = "tag", expression = "java(mapTagsToTagNames(jobPosting.getTag()))")
+    //@Mapping(target = "applicantNames", expression = "java(mapApplicantsToApplicantNames(jobPosting.getApplicant()))")
+    //JobPostingDTO mapToJobPostingDTO(JobPosting jobPosting);
+
+
+    //JobPosting mapToJobPosting(JobPostingRequest jobPostingRequest);
 
     Tag mapToTag(TagDTO tagDTO);
     TagDTO mapToTagDTO(Tag tag);
@@ -34,14 +38,16 @@ public interface MapStructMapper {
 
     Company mapToCompany(UpdateCompanyDetailsDTO updateCompanyDetailsDTO);
 
-    default List<String> mapTagsToTagNames(Set<Tag> tags) {
+    default Set<TagDTO> mapTagsToTagNames(Set<Tag> tags) {
         if (tags == null) {
-            return List.of();
+            return new HashSet<>();
         }
+
         return tags.stream()
-                .map(Tag::getTagName)
-                .toList();
+                .map(tag -> new TagDTO(tag.getTagId(), tag.getTagName())) // Assuming TagDTO has an ID and name
+                .collect(Collectors.toSet());
     }
+
 
     default List<String> mapApplicantsToApplicantNames(Set<User> applicants) {
         if (applicants == null) {
@@ -51,6 +57,7 @@ public interface MapStructMapper {
                 .map(User::getName)
                 .toList();
     }
+
 
 
     @Mapping(source = "jobPosting.jobId", target = "jobId")

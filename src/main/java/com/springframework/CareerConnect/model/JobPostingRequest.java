@@ -2,7 +2,7 @@ package com.springframework.CareerConnect.model;
 
 import lombok.*;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -10,13 +10,11 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
-
-public class JobPostingDTO {
-    private Long jobId;
+public class JobPostingRequest {
+    private Long companyId;
     private String jobTitle;
     private String jobDescription;
     private String jobLocation;
-    private Set<TagDTO> tag;
-    private CompanyDTO company;
-    private List<String> applicantNames;
+    private LocalDateTime deadline;
+    private Set<String> tag;
 }
