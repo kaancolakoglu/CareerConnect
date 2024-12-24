@@ -76,4 +76,12 @@ public class JobPostingController {
 
         return ResponseEntity.ok(jobPostingDTOs);
     }
+
+
+    @DeleteMapping("companies/{companyId}/jobPosting/{jobId}")
+    public ResponseEntity<JobPostingDTO> deleteJobPosting(@PathVariable Long companyId, @PathVariable Long jobId) {
+        log.info("Deleting jobPosting with id {}", jobId);
+        jobPostingService.deleteJobPostingById(companyId,jobId);
+        return ResponseEntity.noContent().build();
+    }
 }

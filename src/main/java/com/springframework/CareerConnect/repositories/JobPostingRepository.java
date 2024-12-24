@@ -33,4 +33,6 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, String> 
                                                @Param("sectorName") String sectorName,
                                                @Param("companyId") Long companyId
     );
+
+    void deleteJobPostingByJobId(Long jobId);
 }

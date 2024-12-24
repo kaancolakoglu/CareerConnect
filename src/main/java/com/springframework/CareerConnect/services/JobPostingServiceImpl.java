@@ -80,4 +80,29 @@ public class JobPostingServiceImpl implements JobPostingService {
         return jobPostingRepository.findJobPostingsByCriteria(jobTitle, jobLocation, companyName, tagName, sectorName, companyId);
     }
 
+    @Override
+    public void deleteJobPostingById(Long companyId,Long jobId) {
+        try {
+            log.debug("Deleting job posting with id " + jobId);
+
+            Company company = companyRepository.findById(companyId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Company with id " + companyId + " not found"));
+
+            JobPosting jobPosting = jobPostingRepository.findJobPostingByJobId(jobId)
+                    .orElseThrow(() -> new ResourceNotFoundException("JobPosting with id " + jobId + " not found"));
+
+            if(company.getJobPosting().contains(jobPosting)){
+
+                company.getJobPosting().remove(jobPosting);
+
+                jobPostingRepository.delete(jobPosting);
+                companyRepository.save(company);
+            }
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("JobPosting with id " + jobId + " not found");
+        } catch (Exception e) {
+            log.error("An error occurred while deleting job posting with id " + jobId, e.getMessage());
+            throw new RuntimeException("An error occurred while deleting job posting with id " + jobId, e);
+        }
+    }
 }

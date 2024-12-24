@@ -15,4 +15,6 @@ public interface JobPostingService {
     JobPosting createJobPosting(Long companyId,JobPostingRequest jobPostingRequest);
 
     List<JobPosting> findJobPostingByCriteria(String jobTitle, String jobLocation, String companyName, String tagName, String sectorName, Long companyId);
+
+    void deleteJobPostingById(Long companyId,Long jobId);
 }
