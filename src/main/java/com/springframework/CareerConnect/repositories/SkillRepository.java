@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface SkillRepository extends CrudRepository<Skill, Long> {
     List<Skill> findByNameIgnoreCase(String name);
+
+    List<Skill> getSkillsBySkillIdNotNull();
 }

@@ -8,5 +8,6 @@ import lombok.*;
 @Setter
 @Builder
 public class SkillDTO {
+    private Long skillId;
     private String name;
 }

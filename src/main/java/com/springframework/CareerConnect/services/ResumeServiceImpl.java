@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class ResumeServiceImpl implements ResumeService {
@@ -261,5 +263,8 @@ public class ResumeServiceImpl implements ResumeService {
         return experienceRepository.save(updatedExperience);
     }
 
-
+    @Override
+    public List<Skill> getAllSkills() {
+        return skillRepository.getSkillsBySkillIdNotNull();
+    }
 }

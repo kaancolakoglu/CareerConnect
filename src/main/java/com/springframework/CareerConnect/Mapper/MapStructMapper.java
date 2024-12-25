@@ -89,4 +89,6 @@ public interface MapStructMapper {
     EducationDTO toDto(Education education);
 
     ExperienceDTO toDto(Experience experience);
+
+    SkillDTO toDto(Skill skill);
 }

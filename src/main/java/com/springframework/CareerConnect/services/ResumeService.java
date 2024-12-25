@@ -6,6 +6,8 @@ import com.springframework.CareerConnect.domain.Resume;
 import com.springframework.CareerConnect.domain.Skill;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface ResumeService {
     Resume createResume(Long userId, Resume resume);
@@ -21,4 +23,6 @@ public interface ResumeService {
     Resume updateResumeById(Long resumeId, Resume resume);
     Education updateEducationById(Long educationId, Education education);
     Experience updateExperienceById(Long experienceId, Experience experience);
+
+    public List<Skill> getAllSkills();
 }

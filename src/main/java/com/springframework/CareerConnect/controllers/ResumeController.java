@@ -7,6 +7,7 @@ import com.springframework.CareerConnect.exceptions.UnauthorizedAccessException;
 import com.springframework.CareerConnect.model.EducationDTO;
 import com.springframework.CareerConnect.model.ExperienceDTO;
 import com.springframework.CareerConnect.model.ResumeDTO;
+import com.springframework.CareerConnect.model.SkillDTO;
 import com.springframework.CareerConnect.repositories.EducationRepository;
 import com.springframework.CareerConnect.repositories.ExperienceRepository;
 import com.springframework.CareerConnect.repositories.ResumeRepository;
@@ -17,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -200,6 +204,13 @@ public class ResumeController {
             log.error("Error deleting experience: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/skills")
+    public ResponseEntity<List<SkillDTO>> getSkills() {
+        log.info("Retrieving all skills");
+
+        return ResponseEntity.ok(resumeService.getAllSkills().stream().map(mapStructMapper::toDto).collect(Collectors.toList()));
     }
 
     @PostMapping("/resumes/{resumeId}/skill")

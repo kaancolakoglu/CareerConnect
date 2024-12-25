@@ -718,6 +718,8 @@ public class DataBootstrap implements CommandLineRunner {
                 .address(Set.of(user1Address))
                 .build();
 
+        resume1.setUser(user1);
+
 
         Address user2Address = Address.builder()
                 .street("123 Tech Drive")
@@ -745,6 +747,8 @@ public class DataBootstrap implements CommandLineRunner {
                 .address(Set.of(user2Address))
                 .build();
 
+        resume2.setUser(user2);
+
         Address user3Address = Address.builder()
                 .street("456 Innovation Road")
                 .city("Austin")
@@ -771,6 +775,8 @@ public class DataBootstrap implements CommandLineRunner {
                 .address(Set.of(user3Address))
                 .build();
 
+        resume3.setUser(user3);
+
         Address user4Address = Address.builder()
                 .street("789 Analytics Lane")
                 .city("Chicago")
@@ -796,6 +802,8 @@ public class DataBootstrap implements CommandLineRunner {
                 .resumes(new HashSet<>(Collections.singletonList(resume4)))
                 .address(Set.of(user4Address))
                 .build();
+
+        resume4.setUser(user4);
 
         userRepository.saveAll(new HashSet<>(Arrays.asList(user1, user2, user3, user4)));
 
@@ -913,6 +921,8 @@ public class DataBootstrap implements CommandLineRunner {
                 .address(Set.of(user5Address))
                 .build();
 
+        resume5.setUser(user5);
+
         Address user6Address = Address.builder()
                 .street("789 Data Park")
                 .city("New York")
@@ -938,6 +948,8 @@ public class DataBootstrap implements CommandLineRunner {
                 .resumes(new HashSet<>(Collections.singletonList(resume6)))
                 .address(Set.of(user6Address))
                 .build();
+
+        resume6.setUser(user6);
 
         Address user7Address = Address.builder()
                 .street("456 DevOps Ave")
@@ -965,6 +977,8 @@ public class DataBootstrap implements CommandLineRunner {
                 .address(Set.of(user7Address))
                 .build();
 
+        resume7.setUser(user7);
+
 
         Address user8Address = Address.builder()
                 .street("789 ML Drive")
@@ -991,6 +1005,8 @@ public class DataBootstrap implements CommandLineRunner {
                 .resumes(new HashSet<>(Collections.singletonList(resume8)))
                 .address(Set.of(user8Address))
                 .build();
+
+        resume8.setUser(user8);
 
         Address user9Address = Address.builder()
                 .street("123 Blockchain Way")
