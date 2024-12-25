@@ -30,6 +30,7 @@ public class ResumeServiceImpl implements ResumeService {
         this.userRepository = userRepository;
     }
 
+
     @Override
     @Transactional
     public Resume createResume(Long userId, Resume resume) {
@@ -211,5 +212,54 @@ public class ResumeServiceImpl implements ResumeService {
         }
         log.info("Skill {} deleted from resume {}", skillId, resumeId);
     }
+
+    @Override
+    @Transactional
+    public Resume updateResumeById(Long resumeId, Resume resume) {
+        try {
+            Resume updatedResume = resumeRepository.findById(resumeId)
+                    .orElseThrow(()->new ResourceNotFoundException("Resume with id " + resumeId + " not found"));
+
+            updatedResume.setResumeName(resume.getResumeName());
+            updatedResume.setSkills(resume.getSkills());
+            updatedResume.setEducations(resume.getEducations());
+            updatedResume.setExperiences(resume.getExperiences());
+            return resumeRepository.save(updatedResume);
+        } catch (Exception e) {
+            log.error("Error updating resume {}: {}", resumeId, e.getMessage());
+            throw new RuntimeException("Failed to update resume", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Education updateEducationById(Long educationId, Education education) {
+        Education updatedEducation = educationRepository.findById(educationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Education with id " + educationId + " not found"));
+
+        updatedEducation.setDegree(education.getDegree());
+        updatedEducation.setStartDate(education.getStartDate());
+        updatedEducation.setEndDate(education.getEndDate());
+        updatedEducation.setMajor(education.getMajor());
+
+        return educationRepository.save(updatedEducation);
+    }
+
+    @Override
+    @Transactional
+    public Experience updateExperienceById(Long experienceId, Experience experience) {
+
+        Experience updatedExperience = experienceRepository.findById(experienceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Experience with id " + experienceId + " not found"));
+
+        updatedExperience.setStartDate(experience.getStartDate());
+        updatedExperience.setEndDate(experience.getEndDate());
+        updatedExperience.setCompanyName(experience.getCompanyName());
+        updatedExperience.setJobTitle(experience.getJobTitle());
+        updatedExperience.setDescription(experience.getDescription());
+
+        return experienceRepository.save(updatedExperience);
+    }
+
 
 }

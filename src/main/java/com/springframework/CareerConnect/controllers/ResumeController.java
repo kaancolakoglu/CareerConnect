@@ -1,15 +1,16 @@
 package com.springframework.CareerConnect.controllers;
 
 import com.springframework.CareerConnect.Mapper.MapStructMapper;
-import com.springframework.CareerConnect.domain.Education;
-import com.springframework.CareerConnect.domain.Experience;
-import com.springframework.CareerConnect.domain.Resume;
-import com.springframework.CareerConnect.domain.Skill;
+import com.springframework.CareerConnect.domain.*;
 import com.springframework.CareerConnect.exceptions.ResourceNotFoundException;
 import com.springframework.CareerConnect.exceptions.UnauthorizedAccessException;
+import com.springframework.CareerConnect.model.EducationDTO;
+import com.springframework.CareerConnect.model.ExperienceDTO;
 import com.springframework.CareerConnect.model.ResumeDTO;
 import com.springframework.CareerConnect.repositories.EducationRepository;
+import com.springframework.CareerConnect.repositories.ExperienceRepository;
 import com.springframework.CareerConnect.repositories.ResumeRepository;
+import com.springframework.CareerConnect.repositories.UserRepository;
 import com.springframework.CareerConnect.services.ResumeService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -26,19 +27,36 @@ public class ResumeController {
     private final ResumeRepository resumeRepository;
     private final MapStructMapper mapStructMapper;
     private final EducationRepository educationRepository;
+    private final ExperienceRepository experienceRepository;
+    private final UserRepository userRepository;
 
-    public ResumeController(ResumeService resumeService, ResumeRepository resumeRepository, MapStructMapper mapStructMapper, EducationRepository educationRepository) {
+    public ResumeController(ResumeService resumeService, ResumeRepository resumeRepository, MapStructMapper mapStructMapper, EducationRepository educationRepository, ExperienceRepository experienceRepository, UserRepository userRepository) {
         this.resumeService = resumeService;
         this.resumeRepository = resumeRepository;
         this.mapStructMapper = mapStructMapper;
         this.educationRepository = educationRepository;
+        this.experienceRepository = experienceRepository;
+        this.userRepository = userRepository;
     }
 
-    @GetMapping("/resumes/{resumeId}")
-    public ResponseEntity<ResumeDTO> getResume(@PathVariable Long resumeId) {
+    @GetMapping("/resume/{resumeId}")
+    public ResponseEntity<ResumeDTO> getResumeById(@PathVariable Long resumeId) {
         log.info("Retrieving resume with ID {}", resumeId);
         Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new RuntimeException("Could not find resume with ID " + resumeId));
+                .orElseThrow(() -> new RuntimeException("Could not find resume for user with ID " + resumeId));
+        ResumeDTO resumeDTO = mapStructMapper.toResumeDTO(resume);
+
+        return new ResponseEntity<>(resumeDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/resumes/{userId}")
+    public ResponseEntity<ResumeDTO> getResumeByUserId(@PathVariable Long userId) {
+        log.info("Retrieving resume with user ID {}", userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Could not find user with ID " + userId));
+
+        Resume resume =  user.getResumes().stream().findFirst().orElseThrow(() -> new RuntimeException("Could not find resume for user with ID " + userId));
+
         ResumeDTO resumeDTO = mapStructMapper.toResumeDTO(resume);
 
         return new ResponseEntity<>(resumeDTO, HttpStatus.OK);
@@ -59,6 +77,17 @@ public class ResumeController {
             log.error("Error creating a resume: {}", e.getMessage());
             throw new RuntimeException("Failed to create a resume");
         }
+    }
+    //TODO: Fix these controllers.
+    @PutMapping("/resumes/{resumeId}")
+    public ResponseEntity<ResumeDTO> updateResume(@PathVariable Long resumeId, @RequestBody Resume resume) {
+        log.info("Updating resume with ID {}", resumeId);
+
+        Resume updatedResume = resumeService.updateResumeById(resumeId, resume);
+
+        ResumeDTO resumeDTO = mapStructMapper.toResumeDTO(updatedResume);
+
+        return new ResponseEntity<>(resumeDTO, HttpStatus.OK);
     }
 
     @DeleteMapping("/resumes/{resumeId}")
@@ -96,6 +125,18 @@ public class ResumeController {
         }
     }
 
+    //TODO: Fix these controllers.
+    @PutMapping("/resumes/{resumeId}/education/{educationId}")
+    public ResponseEntity<EducationDTO> updateEducation(@PathVariable Long educationId, @RequestBody Education education) {
+        log.info("Updating education with id {}", educationId);
+
+        Education updatedEducation = resumeService.updateEducationById(educationId, education);
+
+        EducationDTO educationDTO = mapStructMapper.toDto(updatedEducation);
+
+        return new ResponseEntity<>(educationDTO, HttpStatus.OK);
+    }
+
     @DeleteMapping("/resumes/{resumeId}/education/{educationId}")
     public ResponseEntity<Void> deleteEducation(@PathVariable Long resumeId, @PathVariable Long educationId) {
         log.info("Deleting education with ID {}", educationId);
@@ -128,6 +169,19 @@ public class ResumeController {
             log.error("Error adding experience: {}", e.getMessage());
             throw new RuntimeException("Failed to add experience {}", e);
         }
+    }
+
+    //TODO: Fix these controllers.
+    @PutMapping("/resumes/{resumeId}/experience/{experienceId}")
+    public ResponseEntity<ExperienceDTO> updateExperience(@PathVariable Long experienceId, @RequestBody Experience experience) {
+
+        log.info("Updating experience with id {}", experienceId);
+
+        Experience updatedExperience = resumeService.updateExperienceById(experienceId, experience);
+
+        ExperienceDTO experienceDTO = mapStructMapper.toDto(updatedExperience);
+
+        return new ResponseEntity<>(experienceDTO, HttpStatus.OK);
     }
 
     @DeleteMapping("/resumes/{resumeId}/experience/{experienceId}")

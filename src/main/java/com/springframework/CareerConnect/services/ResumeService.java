@@ -17,4 +17,8 @@ public interface ResumeService {
     void deleteExperienceById(Long resumeId, Long experienceId);
     void deleteEducationById(Long resumeId, Long educationId);
     void deleteSkillById(Long resumeId, Long skillId);
+
+    Resume updateResumeById(Long resumeId, Resume resume);
+    Education updateEducationById(Long educationId, Education education);
+    Experience updateExperienceById(Long experienceId, Experience experience);
 }
