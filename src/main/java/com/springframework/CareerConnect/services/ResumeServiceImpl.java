@@ -2,10 +2,13 @@ package com.springframework.CareerConnect.services;
 
 import com.springframework.CareerConnect.domain.*;
 import com.springframework.CareerConnect.exceptions.ResourceNotFoundException;
+import com.springframework.CareerConnect.exceptions.UnauthorizedAccessException;
 import com.springframework.CareerConnect.repositories.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -28,6 +31,7 @@ public class ResumeServiceImpl implements ResumeService {
         this.skillRepository = skillRepository;
         this.userRepository = userRepository;
     }
+
 
     @Override
     @Transactional
@@ -140,5 +144,127 @@ public class ResumeServiceImpl implements ResumeService {
             log.error("Error adding skill to resume {}: {}", resumeId, e.getMessage());
             throw new RuntimeException("Failed to add skill", e);
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteResumeById(Long resumeId) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(()->new ResourceNotFoundException("Resume with id " + resumeId + " not found"));
+
+        resumeRepository.delete(resume);
+    }
+
+    @Override
+    @Transactional
+    public void deleteExperienceById(Long resumeId, Long experienceId) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(()->new ResourceNotFoundException("Resume with id " + resumeId + " not found"));
+        Experience experience = experienceRepository.findById(experienceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Experience with id " + experienceId + " not found"));
+
+        if(!experience.getResume().getResumeId().equals(resumeId)) {
+            throw new UnauthorizedAccessException("This experience entry doesn't belong to the specified resume");
+        }
+
+        resume.getExperiences().remove(experience);
+        resumeRepository.save(resume);
+    }
+
+    @Override
+    @Transactional
+    public void deleteEducationById(Long resumeId, Long educationId) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(()->new ResourceNotFoundException("Resume with id " + resumeId + " not found"));
+
+        Education education = educationRepository.findById(educationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Education with id " + educationId + " not found"));
+
+        if (!education.getResume().getResumeId().equals(resumeId)) {
+            throw new UnauthorizedAccessException("This education entry doesn't belong to the specified resume");
+        }
+
+        resume.getEducations().remove(education);
+        resumeRepository.save(resume);
+
+        educationRepository.delete(education);
+    }
+
+    @Override
+    @Transactional
+    public void deleteSkillById(Long resumeId, Long skillId) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(()->new ResourceNotFoundException("Resume with id " + resumeId + " not found"));
+        Skill skill = skillRepository.findById(skillId)
+                .orElseThrow(()->new ResourceNotFoundException("Skill with id " + skillId + " not found"));
+
+        if (!resume.getSkills().contains(skill)) {
+            log.warn("Attempted to delete skill {} from resume {} but no such association exists", skillId, resumeId);
+            throw new ResourceNotFoundException("Skill with id " + skillId + " isn't associated with this resume ");
+        }
+
+        resume.getSkills().remove(skill);
+        skill.getResume().remove(resume);
+
+        resumeRepository.save(resume);
+
+        if (skill.getResume().isEmpty()) {
+            log.debug("Skill {} has no more associated resumes, deleting the skill entity", skillId);
+            skillRepository.delete(skill);
+        }
+        log.info("Skill {} deleted from resume {}", skillId, resumeId);
+    }
+
+    @Override
+    @Transactional
+    public Resume updateResumeById(Long resumeId, Resume resume) {
+        try {
+            Resume updatedResume = resumeRepository.findById(resumeId)
+                    .orElseThrow(()->new ResourceNotFoundException("Resume with id " + resumeId + " not found"));
+
+            updatedResume.setResumeName(resume.getResumeName());
+            updatedResume.setSkills(resume.getSkills());
+            updatedResume.setEducations(resume.getEducations());
+            updatedResume.setExperiences(resume.getExperiences());
+            return resumeRepository.save(updatedResume);
+        } catch (Exception e) {
+            log.error("Error updating resume {}: {}", resumeId, e.getMessage());
+            throw new RuntimeException("Failed to update resume", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Education updateEducationById(Long educationId, Education education) {
+        Education updatedEducation = educationRepository.findById(educationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Education with id " + educationId + " not found"));
+
+        updatedEducation.setDegree(education.getDegree());
+        updatedEducation.setStartDate(education.getStartDate());
+        updatedEducation.setEndDate(education.getEndDate());
+        updatedEducation.setMajor(education.getMajor());
+
+        return educationRepository.save(updatedEducation);
+    }
+
+    @Override
+    @Transactional
+    public Experience updateExperienceById(Long experienceId, Experience experience) {
+
+        Experience updatedExperience = experienceRepository.findById(experienceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Experience with id " + experienceId + " not found"));
+
+        updatedExperience.setStartDate(experience.getStartDate());
+        updatedExperience.setEndDate(experience.getEndDate());
+        updatedExperience.setCompanyName(experience.getCompanyName());
+        updatedExperience.setJobTitle(experience.getJobTitle());
+        updatedExperience.setDescription(experience.getDescription());
+
+        return experienceRepository.save(updatedExperience);
+    }
+
+    @Override
+    public List<Skill> getAllSkills() {
+        return skillRepository.getSkillsBySkillIdNotNull();
     }
 }

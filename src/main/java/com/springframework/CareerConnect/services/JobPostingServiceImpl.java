@@ -76,8 +76,36 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
-    public List<JobPosting> findJobPostingByCriteria(String jobTitle, String jobLocation, String companyName, String tagName, String sectorName) {
-        return jobPostingRepository.findJobPostingsByCriteria(jobTitle, jobLocation, companyName, tagName, sectorName);
+    public List<JobPosting> findJobPostingByCriteria(String jobTitle, String jobLocation, String companyName, String tagName, String sectorName, Long companyId) {
+        return jobPostingRepository.findJobPostingsByCriteria(jobTitle, jobLocation, companyName, tagName, sectorName, companyId);
     }
 
+    @Override
+    public void deleteJobPostingById(Long companyId,Long jobId) {
+        try {
+            log.debug("Deleting job posting with id " + jobId);
+
+            Company company = companyRepository.findById(companyId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Company with id " + companyId + " not found"));
+
+            JobPosting jobPosting = jobPostingRepository.findJobPostingByJobId(jobId)
+                    .orElseThrow(() -> new ResourceNotFoundException("JobPosting with id " + jobId + " not found"));
+
+            if(!jobPosting.getCompany().getProfileId().equals(companyId)){
+                throw new IllegalArgumentException("Job posting " + jobId + " does not belong to company " + companyId);
+            }
+            company.getJobPosting().remove(jobPosting);
+            jobPostingRepository.delete(jobPosting);
+            companyRepository.save(company);
+
+            log.info("Deleted job posting with id " + jobId);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("Resource not found with id " + jobId);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid operation {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("Error deleting job posting with id " + jobId);
+            throw new RuntimeException("An error occurred while deleting job posting with id " + jobId, e);
+        }
+    }
 }

@@ -22,16 +22,20 @@ public interface MapStructMapper {
     //JobPosting mapToJobPosting(JobPostingRequest jobPostingRequest);
 
     Tag mapToTag(TagDTO tagDTO);
+
     TagDTO mapToTagDTO(Tag tag);
 
     CompanyDTO mapToCompanyDTO(Company company);
+
     Company mapToCompany(CompanyDTO companyDTO);
 
 
     CompanyProfileDetailsDTO mapToCompanyProfileDetailsDTO(Company company);
+
     Company mapToCompany(CompanyProfileDetailsDTO companyProfileDetailsDTO);
 
     UserDTO mapToUserDTO(User user);
+
     User mapToUser(UserDTO userDTO);
 
     UpdateCompanyDetailsDTO mapToUpdateCompanyDetailsDTO(Company company);
@@ -59,7 +63,6 @@ public interface MapStructMapper {
     }
 
 
-
     @Mapping(source = "jobPosting.jobId", target = "jobId")
     @Mapping(source = "user.profileId", target = "userId")
     ApplicationDTO mapToApplicationDTO(Application application);
@@ -78,6 +81,14 @@ public interface MapStructMapper {
 
 
     List<EducationDTO> toEducationDTOList(Set<Education> educations);
+
     List<ExperienceDTO> toExperienceDTOList(Set<Experience> experiences);
+
     List<SkillDTO> toSkillDTOList(Set<Skill> skills);
+
+    EducationDTO toDto(Education education);
+
+    ExperienceDTO toDto(Experience experience);
+
+    SkillDTO toDto(Skill skill);
 }
